@@ -1,0 +1,19 @@
+{
+    "name": "synapse",
+    "version": "1.0.0",
+    "description": "",
+    "main": "dist/index.js",
+    "type": "module",
+    "scripts": {
+        "start": "node ./dist/index.js"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "fs": "^0.0.1-security",
+        "typescript-parsec": "^0.3.2"
+    },
+    "devDependencies": {
+        "@types/node": "^17.0.31"
+    }
+}
