@@ -122,14 +122,188 @@ interface BreakStatementContext {
 interface ContinueStatementContext {
     type: 'ContinueStatement'
 }
-type ExpressionContext = IndexExpressionContext;
+type ExpressionContext = IndexExpressionContext
+    | MemberExpressionContext
+    | NewExpressionContext
+    | DeleteExpressionContext
+    | CallExpressionContext
+    | PostIncrementExpressionContext
+    | PostDecrementExpressionContext
+    | PreIncrementExpressionContext
+    | PreDecrementExpressionContext
+    | UnaryPlusExpressionContext
+    | UnaryMinusExpressionContext
+    | BitNotExpressionContext
+    | NotExpressionContext
+    | AssertionExpressionContext
+    | MultiplicativeExpressionContext
+    | AdditiveExpressionContext
+    | BitShiftExpressionContext
+    | RelationalExpressionContext
+    | EqualityExpressionContext
+    | BitAndExpressionContext
+    | BitXOrExpressionContext
+    | BitOrExpression
+    | LogicalAndExpressionContext
+    | LogicalOrExpressionContext
+    | TernaryExpressionContext
+    | AssignmentExpressionContext
+    | SizeofExpressionContext
+    | ThisExpressionContext
+    | IdentifierContext
+    | SuperExpressionContext
+    // | LiteralContext
+    | ParenthesizedExpressionContext;
 interface IndexExpressionContext {
-    type: 'IndexExpression'
+    type: 'IndexExpression',
+    expression: ExpressionContext,
+    index: ExpressionContext
+}
+interface MemberExpressionContext {
+    type: 'MemberExpression',
+    expression: ExpressionContext,
+    identifier: string
+}
+interface NewExpressionContext {
+    type: 'NewExpression',
+    identifier: IdentifierContext,
+    arguments: ArgumentsContext
+}
+interface DeleteExpressionContext {
+    type: 'DeleteExpression',
+    expression: ExpressionContext
+}
+interface CallExpressionContext {
+    type: 'CallExpression',
+    expression: ExpressionContext,
+    arguments: ArgumentsContext
+}
+interface PostIncrementExpressionContext {
+    type: 'PostIncrementExpression',
+    expression: ExpressionContext
+}
+interface PostDecrementExpressionContext {
+    type: 'PostDecrementExpression',
+    expression: ExpressionContext
+}
+interface PreIncrementExpressionContext {
+    type: 'PreIncrementExpression',
+    expression: ExpressionContext
+}
+interface PreDecrementExpressionContext {
+    type: 'PreDecrementExpression',
+    expression: ExpressionContext
+}
+interface UnaryPlusExpressionContext {
+    type: 'UnaryPlusExpression',
+    expression: ExpressionContext
+}
+interface UnaryMinusExpressionContext {
+    type: 'UnaryMinusExpression',
+    expression: ExpressionContext
+}
+interface BitNotExpressionContext {
+    type: 'BitNotExpression',
+    expression: ExpressionContext
+}
+interface NotExpressionContext {
+    type: 'NotExpression',
+    expression: ExpressionContext
+}
+interface AssertionExpressionContext {
+    type: 'AssertionExpression',
+    expression: ExpressionContext,
+    typeAnnotation: TypeContext
+}
+interface MultiplicativeExpressionContext {
+    type: 'MultiplicativeExpression',
+    left: ExpressionContext,
+    operator: '*' | '/' | '%',
+    right: ExpressionContext
+}
+interface AdditiveExpressionContext {
+    type: 'AdditiveExpression',
+    left: ExpressionContext,
+    operator: '+' | '-',
+    right: ExpressionContext
+}
+interface BitShiftExpressionContext {
+    type: 'BitShiftExpression',
+    left: ExpressionContext,
+    operator: '<<' | '>>' | '>>>',
+    right: ExpressionContext
+}
+interface RelationalExpressionContext {
+    type: 'RelationalExpression',
+    left: ExpressionContext,
+    operator: '<' | '>' | '<=' | '>=',
+    right: ExpressionContext
+}
+interface EqualityExpressionContext {
+    type: 'EqualityExpression',
+    left: ExpressionContext,
+    operator: '==' | '!=' | '===' | '!==',
+    right: ExpressionContext
+}
+interface BitAndExpressionContext {
+    type: 'BitAndExpression',
+    left: ExpressionContext,
+    right: ExpressionContext
+}
+interface BitXOrExpressionContext {
+    type: 'BitXOrExpression',
+    left: ExpressionContext,
+    right: ExpressionContext
+}
+interface BitOrExpression {
+    type: 'BitOrExpression',
+    left: ExpressionContext,
+    right: ExpressionContext
+}
+interface LogicalAndExpressionContext {
+    type: 'LogicalAndExpression',
+    left: ExpressionContext,
+    right: ExpressionContext
+}
+interface LogicalOrExpressionContext {
+    type: 'LogicalOrExpression',
+    left: ExpressionContext,
+    right: ExpressionContext
+}
+interface TernaryExpressionContext {
+    type: 'TernaryExpression',
+    condition: ExpressionContext,
+    then: ExpressionContext,
+    else: ExpressionContext
+}
+interface AssignmentExpressionContext {
+    type: 'AssignmentExpression',
+    left: ExpressionContext,
+    operator: '=' | '*=' | '/=' | '%=' | '+=' | '-=',
+    right: ExpressionContext
+}
+interface SizeofExpressionContext {
+    type: 'SizeofExpression',
+    identifier: IdentifierContext
+}
+interface ThisExpressionContext {
+    type: 'ThisExpression'
+}
+interface SuperExpressionContext {
+    type: 'SuperExpression'
+}
+interface ParenthesizedExpressionContext {
+    type: 'ParenthesizedExpression',
+    expression: ExpressionContext
 }
 interface ParameterContext {
     type: 'Parameter',
     identifier: string,
     typeAnnotation: TypeContext
+}
+interface ArgumentsContext {
+    type: 'Arguments',
+    items: ExpressionContext[]
 }
 type TypeContext = VoidTypeContext | NotVoidTypeContext
 interface VoidTypeContext {
