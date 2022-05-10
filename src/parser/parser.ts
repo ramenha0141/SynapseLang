@@ -1,4 +1,4 @@
-import { alt, apply, kleft, kmid, kright, list, rep, rule, seq, tok } from 'typescript-parsec';
+import { alt, apply, kleft, kmid, kright, list, opt, rep, rule, seq, tok } from 'typescript-parsec';
 import TokenKind from './TokenKind.js';
 const ModuleRule = rule<TokenKind, ModuleContext>();
 const ImportDeclaration = rule<TokenKind, ImportDeclarationContext>();
@@ -10,6 +10,17 @@ const FunctionDeclaration = rule<TokenKind, FunctionDeclarationContext>();
 const DeclareDeclaration = rule<TokenKind, DeclareDeclarationContext>();
 const VariableDeclaration = rule<TokenKind, VariableDeclarationContext>();
 const ClassDeclaration = rule<TokenKind, ClassDeclarationContext>();
+const ClassField = rule<TokenKind, ClassFieldContext>();
+const ClassMethod = rule<TokenKind, ClassMethodContext>();
+const Statement = rule<TokenKind, StatementContext>();
+const BlockStatement = rule<TokenKind, BlockStatementContext>();
+const ExpressionStatement = rule<TokenKind, ExpressionStatementContext>();
+const ReturnStatement = rule<TokenKind, ReturnStatementContext>();
+const IfStatement = rule<TokenKind, IfStatementContext>();
+const WhileStatement = rule<TokenKind, WhileStatementContext>();
+const ForStatement = rule<TokenKind, ForStatementContext>();
+const BreakStatement = rule<TokenKind, BreakStatementContext>();
+const ContinueStatement = rule<TokenKind, ContinueStatementContext>();
 const Parameter = rule<TokenKind, ParameterContext>();
 const ParameterList = rule<TokenKind, ParameterContext[]>();
 const Type = rule<TokenKind, TypeContext>();
@@ -107,16 +118,75 @@ FunctionDeclaration.setPattern(
                 tok(TokenKind.CloseParen)
             ),
             TypeAnnotation,
-            // BlockStatement
+            BlockStatement
         ),
         (value) => ({
             type: 'FunctionDeclaration',
             identifier: value[0].text,
             parameterList: value[1],
-            typeAnnotation: value[2]
+            typeAnnotation: value[2],
+            body: value[3]
         })
     )
 );
+DeclareDeclaration.setPattern(
+    apply(
+        seq(
+            kright(
+                tok(TokenKind.Declare),
+                list(
+                    tok(TokenKind.Identifier),
+                    tok(TokenKind.Comma)
+                ),
+            ),
+            opt(
+                kright(
+                    tok(TokenKind.As),
+                    tok(TokenKind.Identifier)
+                )
+            ),
+            kmid(
+                tok(TokenKind.OpenParen),
+                ParameterList,
+                tok(TokenKind.CloseParen)
+            ),
+            TypeAnnotation
+        ),
+        (value) => ({
+            type: 'DeclareDeclaration',
+            identifier: value[0].join('.'),
+            alias: value[1]?.text,
+            parameters: value[2],
+            typeAnnotation: value[3]
+        })
+    )
+);
+VariableDeclaration.setPattern(
+    apply(
+        seq(
+            alt(
+                tok(TokenKind.Let),
+                tok(TokenKind.Const)
+            ),
+            tok(TokenKind.Identifier),
+            opt(
+                TypeAnnotation
+            ),
+            kleft(
+                opt(
+                    kright(
+                        tok(TokenKind.Assign),
+                        Expression
+                    )
+                ),
+                eos
+            )
+        ),
+        (value) => ({
+            type: 'VariableDeclaration'
+        })
+    )
+)
 Parameter.setPattern(
     apply(
         seq(

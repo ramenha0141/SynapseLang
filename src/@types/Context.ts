@@ -28,16 +28,64 @@ interface FunctionDeclarationContext {
     type: 'FunctionDeclaration',
     identifier: string,
     parameterList: ParameterContext[],
-    typeAnnotation: TypeContext
+    typeAnnotation: TypeContext,
+    body: BlockStatementContext
 }
 interface DeclareDeclarationContext {
-    type: 'DeclareDeclaration'
+    type: 'DeclareDeclaration',
+    identifier: string,
+    alias?: string,
+    parameters: ParameterContext[],
+    typeAnnotation: TypeContext
 }
 interface VariableDeclarationContext {
-    type: 'VariableDeclaration'
+    type: 'VariableDeclaration',
+    isConstant: boolean,
+    identifier: string,
+    typeAnnotation?: TypeContext,
+    expression?: ExpressionContext
 }
 interface ClassDeclarationContext {
     type: 'ClassDeclaration'
+}
+interface ClassFieldContext {
+    type: 'ClassField'
+}
+interface ClassMethodContext {
+    type: 'ClassMethod'
+}
+type StatementContext = BlockStatementContext
+    | VariableDeclarationContext
+    | ExpressionStatementContext
+    | ReturnStatementContext
+    | IfStatementContext
+    | WhileStatementContext
+    | ForStatementContext
+    | BreakStatementContext
+    | ContinueStatementContext;
+interface BlockStatementContext {
+    type: 'BlockStatement'
+}
+interface ExpressionStatementContext {
+    type: 'ExpressionStatement'
+}
+interface ReturnStatementContext {
+    type: 'ReturnStatement'
+}
+interface IfStatementContext {
+    type: 'IfStatement'
+}
+interface WhileStatementContext {
+    type: 'WhileStatement'
+}
+interface ForStatementContext {
+    type: 'ForStatement'
+}
+interface BreakStatementContext {
+    type: 'BreakStatement'
+}
+interface ContinueStatementContext {
+    type: 'ContinueStatement'
 }
 interface ParameterContext {
     type: 'Parameter',
