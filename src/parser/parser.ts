@@ -10,6 +10,7 @@ const FunctionDeclaration = rule<TokenKind, FunctionDeclarationContext>();
 const DeclareDeclaration = rule<TokenKind, DeclareDeclarationContext>();
 const VariableDeclaration = rule<TokenKind, VariableDeclarationContext>();
 const ClassDeclaration = rule<TokenKind, ClassDeclarationContext>();
+const ClassConstructor = rule<TokenKind, ClassConstructorContext>();
 const ClassField = rule<TokenKind, ClassFieldContext>();
 const ClassMethod = rule<TokenKind, ClassMethodContext>();
 const Statement = rule<TokenKind, StatementContext>();
@@ -19,8 +20,11 @@ const ReturnStatement = rule<TokenKind, ReturnStatementContext>();
 const IfStatement = rule<TokenKind, IfStatementContext>();
 const WhileStatement = rule<TokenKind, WhileStatementContext>();
 const ForStatement = rule<TokenKind, ForStatementContext>();
+const ForNormalStatement = rule<TokenKind, ForNormalStatementContext>();
+const ForInStatement = rule<TokenKind, ForInStatementContext>();
 const BreakStatement = rule<TokenKind, BreakStatementContext>();
 const ContinueStatement = rule<TokenKind, ContinueStatementContext>();
+const Expression = rule<TokenKind, ExpressionContext>();
 const Parameter = rule<TokenKind, ParameterContext>();
 const ParameterList = rule<TokenKind, ParameterContext[]>();
 const Type = rule<TokenKind, TypeContext>();
@@ -65,7 +69,7 @@ ImportDefineDeclaration.setPattern(
         ),
         (value) => ({
             type: 'ImportDefineDeclaration',
-            identifiers: value[0].map(e => e.text),
+            defines: value[0].map(e => e.text),
             path: value[1].text.slice(1, -1)
         }))
 );
@@ -183,10 +187,292 @@ VariableDeclaration.setPattern(
             )
         ),
         (value) => ({
-            type: 'VariableDeclaration'
+            type: 'VariableDeclaration',
+            isConstant: value[0].kind === TokenKind.Const,
+            identifier: value[1].text,
+            typeAnnotation: value[2],
+            expression: value[3]
         })
     )
-)
+);
+ClassDeclaration.setPattern(
+    apply(
+        seq(
+            kright(
+                tok(TokenKind.Class),
+                tok(TokenKind.Identifier)
+            ),
+            opt(
+                kright(
+                    tok(TokenKind.Extends),
+                    Identifier
+                )
+            ),
+            kmid(
+                tok(TokenKind.OpenBrace),
+                seq(
+                    ClassConstructor,
+                    rep(
+                        alt(
+                            ClassField,
+                            ClassMethod
+                        )
+                    )
+                ),
+                tok(TokenKind.CloseBrace)
+            )
+        ),
+        (value) => ({
+            type: 'ClassDeclaration',
+            identifier: value[0].text,
+            extends: value[1],
+            constructor: value[2][0],
+            fields: value[2][1].filter((e): e is ClassFieldContext => e.type === 'ClassField'),
+            methods: value[2][1].filter((e): e is ClassMethodContext => e.type === 'ClassMethod')
+        })
+    )
+);
+ClassConstructor.setPattern(
+    apply(
+        seq(
+            kright(
+                tok(TokenKind.Constructor),
+                kmid(
+                    tok(TokenKind.OpenParen),
+                    ParameterList,
+                    tok(TokenKind.CloseParen)
+                )
+            ),
+            BlockStatement
+        ),
+        (value) => ({
+            type: 'ClassConstructor',
+            parameterList: value[0],
+            body: value[1]
+        })
+    )
+);
+ClassField.setPattern(
+    apply(
+        seq(
+            tok(TokenKind.Identifier),
+            kleft(
+                TypeAnnotation,
+                eos
+            )
+        ),
+        (value) => ({
+            type: 'ClassField',
+            identifier: value[0].text,
+            typeAnnotation: value[1]
+        })
+    )
+);
+ClassMethod.setPattern(
+    apply(
+        seq(
+            tok(TokenKind.Identifier),
+            kmid(
+                tok(TokenKind.OpenParen),
+                ParameterList,
+                tok(TokenKind.CloseParen)
+            ),
+            TypeAnnotation,
+            BlockStatement
+        ),
+        (value) => ({
+            type: 'ClassMethod',
+            identifier: value[0].text,
+            parameterList: value[1],
+            typeAnnotation: value[2],
+            body: value[3]
+        })
+    )
+);
+Statement.setPattern(
+    alt(
+        BlockStatement,
+        VariableDeclaration,
+        ExpressionStatement,
+        ReturnStatement,
+        IfStatement,
+        WhileStatement,
+        ForStatement,
+        BreakStatement,
+        ContinueStatement
+    )
+);
+BlockStatement.setPattern(
+    apply(
+        kmid(
+            tok(TokenKind.OpenBrace),
+            rep(
+                Statement
+            ),
+            tok(TokenKind.CloseBrace)
+        ),
+        (value) => ({
+            type: 'BlockStatement',
+            statements: value
+        })
+    )
+);
+ExpressionStatement.setPattern(
+    apply(
+        kleft(
+            Expression,
+            eos
+        ),
+        (value) => ({
+            type: 'ExpressionStatement',
+            expression: value
+        })
+    )
+);
+ReturnStatement.setPattern(
+    apply(
+        kmid(
+            tok(TokenKind.Return),
+            Expression,
+            eos
+        ),
+        (value) => ({
+            type: 'ReturnStatement',
+            expression: value
+        })
+    )
+);
+IfStatement.setPattern(
+    apply(
+        seq(
+            kright(
+                tok(TokenKind.If),
+                kmid(
+                    tok(TokenKind.OpenParen),
+                    Expression,
+                    tok(TokenKind.CloseParen)
+                )
+            ),
+            Statement,
+            opt(
+                kright(
+                    tok(TokenKind.Else),
+                    Statement
+                )
+            )
+        ),
+        (value) => ({
+            type: 'IfStatement',
+            condition: value[0],
+            then: value[1],
+            else: value[2]
+        })
+    )
+);
+WhileStatement.setPattern(
+    apply(
+        seq(
+            kright(
+                tok(TokenKind.While),
+                kmid(
+                    tok(TokenKind.OpenParen),
+                    Expression,
+                    tok(TokenKind.CloseParen)
+                )
+            ),
+            Statement
+        ),
+        (value) => ({
+            type: 'WhileStatement',
+            condition: value[0],
+            then: value[1]
+        })
+    )
+);
+ForStatement.setPattern(
+    alt(
+        ForNormalStatement,
+        ForInStatement
+    )
+);
+ForNormalStatement.setPattern(
+    apply(
+        seq(
+            kright(
+                tok(TokenKind.For),
+                kmid(
+                    tok(TokenKind.OpenParen),
+                    seq(
+                        VariableDeclaration,
+                        kleft(
+                            Expression,
+                            eos
+                        ),
+                        Expression
+                    ),
+                    tok(TokenKind.CloseParen)
+                )
+            ),
+            Statement
+        ),
+        (value) => ({
+            type: 'ForNormalStatement',
+            initialization: value[0][0],
+            condition: value[0][1],
+            final: value[0][2],
+            then: value[1]
+        })
+    )
+);
+ForInStatement.setPattern(
+    apply(
+        seq(
+            kright(
+                tok(TokenKind.For),
+                kmid(
+                    tok(TokenKind.OpenParen),
+                    seq(
+                        kleft(
+                            tok(TokenKind.Identifier),
+                            tok(TokenKind.In)
+                        ),
+                        Expression
+                    ),
+                    tok(TokenKind.CloseParen)
+                )
+            ),
+            Statement
+        ),
+        (value) => ({
+            type: 'ForInStatement',
+            identifier: value[0][0].text,
+            expression: value[0][1],
+            then: value[1]
+        })
+    )
+);
+BreakStatement.setPattern(
+    apply(
+        seq(
+            tok(TokenKind.Break),
+            eos
+        ),
+        (value) => ({
+            type: 'BreakStatement'
+        })
+    )
+);
+ContinueStatement.setPattern(
+    apply(
+        seq(
+            tok(TokenKind.Continue),
+            eos
+        ),
+        (value) => ({
+            type: 'ContinueStatement'
+        })
+    )
+);
 Parameter.setPattern(
     apply(
         seq(
@@ -242,5 +528,17 @@ TypeAnnotation.setPattern(
     kright(
         tok(TokenKind.Colon),
         Type
+    )
+);
+Identifier.setPattern(
+    apply(
+        list(
+            tok(TokenKind.Identifier),
+            tok(TokenKind.Scope)
+        ),
+        (value) => ({
+            type: 'Identifier',
+            identifiers: value.map(e => e.text)
+        })
     )
 );

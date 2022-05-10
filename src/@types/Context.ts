@@ -8,7 +8,7 @@ type ImportDeclarationContext = ImportDefineDeclarationContext
     | ImportBuiltinDeclarationContext;
 interface ImportDefineDeclarationContext {
     type: 'ImportDefineDeclaration',
-    identifiers: string[],
+    defines: string[],
     path: string
 }
 interface ImportNamespaceDeclarationContext {
@@ -46,13 +46,29 @@ interface VariableDeclarationContext {
     expression?: ExpressionContext
 }
 interface ClassDeclarationContext {
-    type: 'ClassDeclaration'
+    type: 'ClassDeclaration',
+    identifier: string,
+    extends?: IdentifierContext,
+    constructor: ClassConstructorContext,
+    fields: ClassFieldContext[],
+    methods: ClassMethodContext[]
+}
+interface ClassConstructorContext {
+    type: 'ClassConstructor',
+    parameterList: ParameterContext[],
+    body: BlockStatementContext
 }
 interface ClassFieldContext {
-    type: 'ClassField'
+    type: 'ClassField',
+    identifier: string,
+    typeAnnotation: TypeContext
 }
 interface ClassMethodContext {
-    type: 'ClassMethod'
+    type: 'ClassMethod',
+    identifier: string,
+    parameterList: ParameterContext[],
+    typeAnnotation: TypeContext,
+    body: BlockStatementContext
 }
 type StatementContext = BlockStatementContext
     | VariableDeclarationContext
@@ -64,28 +80,51 @@ type StatementContext = BlockStatementContext
     | BreakStatementContext
     | ContinueStatementContext;
 interface BlockStatementContext {
-    type: 'BlockStatement'
+    type: 'BlockStatement',
+    statements: StatementContext[]
 }
 interface ExpressionStatementContext {
-    type: 'ExpressionStatement'
+    type: 'ExpressionStatement',
+    expression: ExpressionContext
 }
 interface ReturnStatementContext {
-    type: 'ReturnStatement'
+    type: 'ReturnStatement',
+    expression: ExpressionContext
 }
 interface IfStatementContext {
-    type: 'IfStatement'
+    type: 'IfStatement',
+    condition: ExpressionContext,
+    then: StatementContext,
+    else?: StatementContext
 }
 interface WhileStatementContext {
-    type: 'WhileStatement'
+    type: 'WhileStatement',
+    condition: ExpressionContext,
+    then: StatementContext
 }
-interface ForStatementContext {
-    type: 'ForStatement'
+type ForStatementContext = ForNormalStatementContext | ForInStatementContext;
+interface ForNormalStatementContext {
+    type: 'ForNormalStatement',
+    initialization: VariableDeclarationContext,
+    condition: ExpressionContext,
+    final: ExpressionContext,
+    then: StatementContext
+}
+interface ForInStatementContext {
+    type: 'ForInStatement',
+    identifier: string,
+    expression: ExpressionContext,
+    then: StatementContext
 }
 interface BreakStatementContext {
     type: 'BreakStatement'
 }
 interface ContinueStatementContext {
     type: 'ContinueStatement'
+}
+type ExpressionContext = IndexExpressionContext;
+interface IndexExpressionContext {
+    type: 'IndexExpression'
 }
 interface ParameterContext {
     type: 'Parameter',
