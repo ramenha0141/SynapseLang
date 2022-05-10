@@ -143,7 +143,7 @@ type ExpressionContext = IndexExpressionContext
     | EqualityExpressionContext
     | BitAndExpressionContext
     | BitXOrExpressionContext
-    | BitOrExpression
+    | BitOrExpressionContext
     | LogicalAndExpressionContext
     | LogicalOrExpressionContext
     | TernaryExpressionContext
@@ -152,7 +152,7 @@ type ExpressionContext = IndexExpressionContext
     | ThisExpressionContext
     | IdentifierContext
     | SuperExpressionContext
-    // | LiteralContext
+    | LiteralContext
     | ParenthesizedExpressionContext;
 interface IndexExpressionContext {
     type: 'IndexExpression',
@@ -255,7 +255,7 @@ interface BitXOrExpressionContext {
     left: ExpressionContext,
     right: ExpressionContext
 }
-interface BitOrExpression {
+interface BitOrExpressionContext {
     type: 'BitOrExpression',
     left: ExpressionContext,
     right: ExpressionContext
@@ -295,6 +295,31 @@ interface SuperExpressionContext {
 interface ParenthesizedExpressionContext {
     type: 'ParenthesizedExpression',
     expression: ExpressionContext
+}
+type LiteralContext = NullLiteralContext
+    | BooleanLiteralContext
+    | StringLiteralContext
+    | NumberLiteralContext
+    | ArrayLiteralContext;
+interface NullLiteralContext {
+    type: 'NullLiteral'
+}
+interface BooleanLiteralContext {
+    type: 'BooleanLiteral',
+    text: string
+}
+interface StringLiteralContext {
+    type: 'StringLiteral',
+    text: string
+}
+interface NumberLiteralContext {
+    type: 'NumberLiteral',
+    isFloat: boolean,
+    text: string
+}
+interface ArrayLiteralContext {
+    type: 'ArrayLiteral',
+    items: ExpressionContext[]
 }
 interface ParameterContext {
     type: 'Parameter',
