@@ -122,33 +122,33 @@ interface BreakStatementContext {
 interface ContinueStatementContext {
     type: 'ContinueStatement'
 }
-type ExpressionContext = IndexExpressionContext
-    | MemberExpressionContext
-    | NewExpressionContext
-    | DeleteExpressionContext
-    | CallExpressionContext
-    | PostIncrementExpressionContext
-    | PostDecrementExpressionContext
+type ExpressionContext = AssignmentExpressionContext
+    | TernaryExpressionContext
+    | LogicalOrExpressionContext
+    | LogicalAndExpressionContext
+    | BitOrExpressionContext
+    | BitXOrExpressionContext
+    | BitAndExpressionContext
+    | EqualityExpressionContext
+    | RelationalExpressionContext
+    | BitShiftExpressionContext
+    | AdditiveExpressionContext
+    | MultiplicativeExpressionContext
+    | AssertionExpressionContext
     | PreIncrementExpressionContext
     | PreDecrementExpressionContext
     | UnaryPlusExpressionContext
     | UnaryMinusExpressionContext
     | BitNotExpressionContext
     | NotExpressionContext
-    | AssertionExpressionContext
-    | MultiplicativeExpressionContext
-    | AdditiveExpressionContext
-    | BitShiftExpressionContext
-    | RelationalExpressionContext
-    | EqualityExpressionContext
-    | BitAndExpressionContext
-    | BitXOrExpressionContext
-    | BitOrExpressionContext
-    | LogicalAndExpressionContext
-    | LogicalOrExpressionContext
-    | TernaryExpressionContext
-    | AssignmentExpressionContext
+    | NewExpressionContext
+    | DeleteExpressionContext
     | SizeofExpressionContext
+    | IndexExpressionContext
+    | MemberExpressionContext
+    | CallExpressionContext
+    | PostIncrementExpressionContext
+    | PostDecrementExpressionContext
     | ThisExpressionContext
     | IdentifierContext
     | SuperExpressionContext
