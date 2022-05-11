@@ -206,7 +206,7 @@ interface RelationalExpressionContext {
 interface BitShiftExpressionContext {
     type: 'BitShiftExpression',
     left: ExpressionContext,
-    operator: '<<' | '>>' | '>>>',
+    operator: '>>' | '<<' | '>>>',
     right: ExpressionContext
 }
 interface AdditiveExpressionContext {
@@ -221,28 +221,10 @@ interface MultiplicativeExpressionContext {
     operator: '*' | '/' | '%',
     right: ExpressionContext
 }
-interface IndexExpressionContext {
-    type: 'IndexExpression',
+interface AssertionExpressionContext {
+    type: 'AssertionExpression',
     expression: ExpressionContext,
-    index: ExpressionContext
-}
-interface MemberExpressionContext {
-    type: 'MemberExpression',
-    expression: ExpressionContext,
-    identifier: string
-}
-interface CallExpressionContext {
-    type: 'CallExpression',
-    expression: ExpressionContext,
-    arguments: ArgumentsContext
-}
-interface PostIncrementExpressionContext {
-    type: 'PostIncrementExpression',
-    expression: ExpressionContext
-}
-interface PostDecrementExpressionContext {
-    type: 'PostDecrementExpression',
-    expression: ExpressionContext
+    typeAnnotation: TypeContext
 }
 interface PreIncrementExpressionContext {
     type: 'PreIncrementExpression',
@@ -251,11 +233,6 @@ interface PreIncrementExpressionContext {
 interface PreDecrementExpressionContext {
     type: 'PreDecrementExpression',
     expression: ExpressionContext
-}
-interface AssertionExpressionContext {
-    type: 'AssertionExpression',
-    expression: ExpressionContext,
-    typeAnnotation: TypeContext
 }
 interface UnaryPlusExpressionContext {
     type: 'UnaryPlusExpression',
@@ -285,6 +262,29 @@ interface DeleteExpressionContext {
 interface SizeofExpressionContext {
     type: 'SizeofExpression',
     identifier: IdentifierContext
+}
+interface IndexExpressionContext {
+    type: 'IndexExpression',
+    expression: ExpressionContext,
+    index: ExpressionContext
+}
+interface MemberExpressionContext {
+    type: 'MemberExpression',
+    expression: ExpressionContext,
+    identifier: string
+}
+interface CallExpressionContext {
+    type: 'CallExpression',
+    expression: ExpressionContext,
+    arguments: ArgumentsContext
+}
+interface PostIncrementExpressionContext {
+    type: 'PostIncrementExpression',
+    expression: ExpressionContext
+}
+interface PostDecrementExpressionContext {
+    type: 'PostDecrementExpression',
+    expression: ExpressionContext
 }
 interface ThisExpressionContext {
     type: 'ThisExpression'

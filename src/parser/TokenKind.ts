@@ -52,8 +52,8 @@ enum TokenKind {
     // Literals
     NullLiteral,
     BooleanLiteral,
-    DicimalIntegerLiteral,
-    DicimalFloatLiteral,
+    DecimalIntegerLiteral,
+    DecimalFloatLiteral,
     HexIntegerLiteral,
     StringLiteral,
     // Keywords
