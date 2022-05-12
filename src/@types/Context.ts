@@ -226,14 +226,6 @@ interface AssertionExpressionContext {
     expression: ExpressionContext,
     typeAnnotation: TypeContext
 }
-interface PreIncrementExpressionContext {
-    type: 'PreIncrementExpression',
-    expression: ExpressionContext
-}
-interface PreDecrementExpressionContext {
-    type: 'PreDecrementExpression',
-    expression: ExpressionContext
-}
 interface UnaryPlusExpressionContext {
     type: 'UnaryPlusExpression',
     expression: ExpressionContext
@@ -250,18 +242,34 @@ interface NotExpressionContext {
     type: 'NotExpression',
     expression: ExpressionContext
 }
-interface NewExpressionContext {
-    type: 'NewExpression',
-    identifier: IdentifierContext,
-    arguments: ArgumentsContext
-}
 interface DeleteExpressionContext {
     type: 'DeleteExpression',
     expression: ExpressionContext
 }
 interface SizeofExpressionContext {
     type: 'SizeofExpression',
-    identifier: IdentifierContext
+    expression: ExpressionContext
+}
+interface PreIncrementExpressionContext {
+    type: 'PreIncrementExpression',
+    expression: ExpressionContext
+}
+interface PreDecrementExpressionContext {
+    type: 'PreDecrementExpression',
+    expression: ExpressionContext
+}
+interface PostIncrementExpressionContext {
+    type: 'PostIncrementExpression',
+    expression: ExpressionContext
+}
+interface PostDecrementExpressionContext {
+    type: 'PostDecrementExpression',
+    expression: ExpressionContext
+}
+interface NewExpressionContext {
+    type: 'NewExpression',
+    identifier: IdentifierContext,
+    arguments: ArgumentsContext
 }
 interface IndexExpressionContext {
     type: 'IndexExpression',
@@ -277,14 +285,6 @@ interface CallExpressionContext {
     type: 'CallExpression',
     expression: ExpressionContext,
     arguments: ArgumentsContext
-}
-interface PostIncrementExpressionContext {
-    type: 'PostIncrementExpression',
-    expression: ExpressionContext
-}
-interface PostDecrementExpressionContext {
-    type: 'PostDecrementExpression',
-    expression: ExpressionContext
 }
 interface ThisExpressionContext {
     type: 'ThisExpression'

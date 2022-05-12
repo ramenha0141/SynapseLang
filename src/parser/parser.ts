@@ -39,21 +39,22 @@ const AdditiveExpression = rule<TokenKind, ExpressionContext>();
 const MultiplicativeExpression = rule<TokenKind, ExpressionContext>();
 const AssertionExpression = rule<TokenKind, ExpressionContext>();
 const UnaryExpression = rule<TokenKind, ExpressionContext>();
-const PreIncrementExpression = rule<TokenKind, ExpressionContext>();
-const PreDecrementExpression = rule<TokenKind, ExpressionContext>();
-const UnaryPlusExpression = rule<TokenKind, ExpressionContext>();
-const UnaryMinusExpression = rule<TokenKind, ExpressionContext>();
-const BitNotExpression = rule<TokenKind, ExpressionContext>();
-const NotExpression = rule<TokenKind, ExpressionContext>();
+const UnaryPlusExpression = rule<TokenKind, UnaryPlusExpressionContext>();
+const UnaryMinusExpression = rule<TokenKind, UnaryMinusExpressionContext>();
+const BitNotExpression = rule<TokenKind, BitNotExpressionContext>();
+const NotExpression = rule<TokenKind, NotExpressionContext>();
 const NewExpression = rule<TokenKind, NewExpressionContext>();
 const DeleteExpression = rule<TokenKind, DeleteExpressionContext>();
 const SizeofExpression = rule<TokenKind, SizeofExpressionContext>();
-const PostfixExpression = rule<TokenKind, ExpressionContext>();
-const IndexExpression = rule<TokenKind, ExpressionContext>();
-const MemberExpression = rule<TokenKind, ExpressionContext>();
-const CallExpression = rule<TokenKind, ExpressionContext>();
+const UpdateExpression = rule<TokenKind, ExpressionContext>();
 const PostIncrementExpression = rule<TokenKind, ExpressionContext>();
 const PostDecrementExpression = rule<TokenKind, ExpressionContext>();
+const PreIncrementExpression = rule<TokenKind, ExpressionContext>();
+const PreDecrementExpression = rule<TokenKind, ExpressionContext>();
+const PostfixExpression = rule<TokenKind, ExpressionContext>();
+const IndexExpression = rule<TokenKind, IndexExpressionPostfixPart>();
+const MemberExpression = rule<TokenKind, MemberExpressionPostfixPart>();
+const CallExpression = rule<TokenKind, CallExpressionPostfixPart>();
 const PrimaryExpression = rule<TokenKind, ExpressionContext>();
 const ThisExpression = rule<TokenKind, ThisExpressionContext>();
 const SuperExpression = rule<TokenKind, SuperExpressionContext>()
@@ -747,15 +748,134 @@ AssertionExpression.setPattern(
 );
 UnaryExpression.setPattern(
     alt(
-        PreIncrementExpression,
-        PreDecrementExpression,
+        UpdateExpression,
         UnaryPlusExpression,
         UnaryMinusExpression,
         BitNotExpression,
         NotExpression,
-        NewExpression,
         DeleteExpression,
         SizeofExpression
+    )
+);
+UnaryPlusExpression.setPattern(
+    apply(
+        kright(
+            tok(TokenKind.Plus),
+            UnaryExpression
+        ),
+        (value) => ({
+            type: 'UnaryPlusExpression',
+            expression: value
+        })
+    )
+);
+UnaryMinusExpression.setPattern(
+    apply(
+        kright(
+            tok(TokenKind.Minus),
+            UnaryExpression
+        ),
+        (value) => ({
+            type: 'UnaryMinusExpression',
+            expression: value
+        })
+    )
+);
+BitNotExpression.setPattern(
+    apply(
+        kright(
+            tok(TokenKind.BitNot),
+            UnaryExpression
+        ),
+        (value) => ({
+            type: 'BitNotExpression',
+            expression: value
+        })
+    )
+);
+NotExpression.setPattern(
+    apply(
+        kright(
+            tok(TokenKind.Not),
+            UnaryExpression
+        ),
+        (value) => ({
+            type: 'NotExpression',
+            expression: value
+        })
+    )
+);
+NewExpression.setPattern(
+    apply(
+        seq(
+            kright(
+                tok(TokenKind.New),
+                Identifier
+            ),
+            Arguments
+        ),
+        (value) => ({
+            type: 'NewExpression',
+            identifier: value[0],
+            arguments: value[1]
+        })
+    )
+);
+DeleteExpression.setPattern(
+    apply(
+        kright(
+            tok(TokenKind.Delete),
+            UnaryExpression
+        ),
+        (value) => ({
+            type: 'DeleteExpression',
+            expression: value
+        })
+    )
+);
+SizeofExpression.setPattern(
+    apply(
+        kright(
+            tok(TokenKind.Sizeof),
+            UnaryExpression
+        ),
+        (value) => ({
+            type: 'SizeofExpression',
+            expression: value
+        })
+    )
+);
+UpdateExpression.setPattern(
+    alt(
+        PostIncrementExpression,
+        PostDecrementExpression,
+        PreIncrementExpression,
+        PreDecrementExpression,
+        PostfixExpression
+    )
+);
+PostIncrementExpression.setPattern(
+    apply(
+        kleft(
+            PostfixExpression,
+            tok(TokenKind.PlusPlus)
+        ),
+        (value) => ({
+            type: 'PostIncrementExpression',
+            expression: value
+        })
+    )
+);
+PostDecrementExpression.setPattern(
+    apply(
+        kleft(
+            PostfixExpression,
+            tok(TokenKind.MinusMinus)
+        ),
+        (value) => ({
+            type: 'PostDecrementExpression',
+            expression: value
+        })
     )
 );
 PreIncrementExpression.setPattern(
@@ -782,77 +902,76 @@ PreDecrementExpression.setPattern(
         })
     )
 );
-UnaryPlusExpression.setPattern(
+interface IndexExpressionPostfixPart {
+    type: 'IndexExpressionPostfixPart',
+    index: ExpressionContext
+}
+interface MemberExpressionPostfixPart {
+    type: 'MemberExpressionPostfixPart',
+    identifier: string
+}
+interface CallExpressionPostfixPart {
+    type: 'CallExpressionPostfixPart',
+    arguments: ArgumentsContext
+}
+PostfixExpression.setPattern(
+    lrec_sc(
+        PrimaryExpression,
+        alt(
+            IndexExpression,
+            MemberExpression,
+            CallExpression
+        ),
+        (a, b) => (b? (
+            b.type === 'IndexExpressionPostfixPart'
+                ? {
+                    type: 'IndexExpression',
+                    expression: a,
+                    index: b.index
+                } : b.type === 'MemberExpressionPostfixPart'
+                ? {
+                    type: 'MemberExpression',
+                    expression: a,
+                    identifier: b.identifier
+                } : {
+                    type: 'CallExpression',
+                    expression: a,
+                    arguments: b.arguments
+                }
+        ): a)
+    )
+);
+IndexExpression.setPattern(
     apply(
-        kright(
-            tok(TokenKind.Plus),
-            PostfixExpression
+        kmid(
+            tok(TokenKind.OpenBracket),
+            Expression,
+            tok(TokenKind.CloseBracket)
         ),
         (value) => ({
-            type: 'UnaryPlusExpression',
-            expression: value
+            type: 'IndexExpressionPostfixPart',
+            index: value
         })
     )
 );
-UnaryMinusExpression.setPattern(
+MemberExpression.setPattern(
     apply(
         kright(
-            tok(TokenKind.Minus),
-            PostfixExpression
+            tok(TokenKind.Dot),
+            tok(TokenKind.Identifier)
         ),
         (value) => ({
-            type: 'UnaryMinusExpression',
-            expression: value
+            type: 'MemberExpressionPostfixPart',
+            identifier: value.text
         })
     )
 );
-BitNotExpression.setPattern(
+CallExpression.setPattern(
     apply(
-        kright(
-            tok(TokenKind.BitNot),
-            PostfixExpression
-        ),
+        Arguments,
         (value) => ({
-            type: 'BitNotExpression',
-            expression: value
-        })
-    )
-);
-NotExpression.setPattern(
-    apply(
-        kright(
-            tok(TokenKind.Not),
-            PostfixExpression
-        ),
-        (value) => ({
-            type: 'NotExpression',
-            expression: value
-        })
-    )
-);
-NewExpression.setPattern(
-    apply(
-        seq(
-            tok(TokenKind.New),
-            Identifier,
-            Arguments
-        ),
-        (value) => ({
-            type: 'NewExpression',
-            identifier: value[1],
-            arguments: value[2]
-        })
-    )
-);
-DeleteExpression.setPattern(
-    apply(
-        kright(
-            tok(TokenKind.Delete),
-            Expression
-        ),
-        (value) => ({
-            type: 'DeleteExpression',
-            expression: value
+            type: 'CallExpressionPostfixPart',
+            arguments: value
         })
     )
 );
