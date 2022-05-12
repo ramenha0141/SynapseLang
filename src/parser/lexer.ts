@@ -37,6 +37,8 @@ const lexer = buildLexer([
     [true, /^>=/g, TokenKind.GreaterThanEquals],
     [true, /^==/g, TokenKind.Equals],
     [true, /^!=/g, TokenKind.NotEquals],
+    [true, /^===/g, TokenKind.IdentityEquals],
+    [true, /^!==/g, TokenKind.IdentityNotEquals],
     [true, /^&/g, TokenKind.BitAnd],
     [true, /^\^/g, TokenKind.BitXOr],
     [true, /^\|/g, TokenKind.BitOr],

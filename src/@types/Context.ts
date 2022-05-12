@@ -339,7 +339,7 @@ interface NotVoidTypeContext {
     type: 'Type',
     isVoid: false,
     identifier: IdentifierContext,
-    dimension: number[]
+    dimensions: number[]
 }
 interface IdentifierContext {
     type: 'Identifier',

@@ -1,6 +1,6 @@
-import { alt, apply, kleft, kmid, kright, list, list_sc, lrec, lrec_sc, opt, rep, rep_sc, rule, seq, tok } from 'typescript-parsec';
+import { alt, apply, kleft, kmid, kright, list_sc, lrec_sc, opt, rep_sc, rule, seq, tok } from 'typescript-parsec';
 import TokenKind from './TokenKind.js';
-const ModuleRule = rule<TokenKind, ModuleContext>();
+const Module = rule<TokenKind, ModuleContext>();
 const ImportDeclaration = rule<TokenKind, ImportDeclarationContext>();
 const ImportDefineDeclaration = rule<TokenKind, ImportDefineDeclarationContext>();
 const ImportNamespaceDeclaration = rule<TokenKind, ImportNamespaceDeclarationContext>();
@@ -72,7 +72,7 @@ const Type = rule<TokenKind, TypeContext>();
 const TypeAnnotation = rule<TokenKind, TypeContext>();
 const Identifier = rule<TokenKind, IdentifierContext>();
 const eos = tok(TokenKind.SemiColon);
-ModuleRule.setPattern(
+Module.setPattern(
     apply(
         seq(
             rep_sc(ImportDeclaration),
@@ -575,11 +575,11 @@ LogicalOrExpression.setPattern(
             tok(TokenKind.Or),
             LogicalAndExpression
         ),
-        (a, b) => (b? {
+        (a, b) => (b ? {
             type: 'LogicalOrExpression',
             left: a,
             right: b
-        }: a)
+        } : a)
     )
 );
 LogicalAndExpression.setPattern(
@@ -589,11 +589,11 @@ LogicalAndExpression.setPattern(
             tok(TokenKind.And),
             BitOrExpression
         ),
-        (a, b) => (b? {
+        (a, b) => (b ? {
             type: 'LogicalAndExpression',
             left: a,
             right: b
-        }: a)
+        } : a)
     )
 );
 BitOrExpression.setPattern(
@@ -603,11 +603,11 @@ BitOrExpression.setPattern(
             tok(TokenKind.BitOr),
             BitXOrExpression
         ),
-        (a, b) => (b? {
+        (a, b) => (b ? {
             type: 'BitOrExpression',
             left: a,
             right: b
-        }: a)
+        } : a)
     )
 );
 BitXOrExpression.setPattern(
@@ -617,11 +617,11 @@ BitXOrExpression.setPattern(
             tok(TokenKind.BitXOr),
             BitAndExpression
         ),
-        (a, b) => (b? {
+        (a, b) => (b ? {
             type: 'BitXOrExpression',
             left: a,
             right: b
-        }: a)
+        } : a)
     )
 );
 BitAndExpression.setPattern(
@@ -631,11 +631,11 @@ BitAndExpression.setPattern(
             tok(TokenKind.BitAnd),
             EqualityExpression
         ),
-        (a, b) => (b? {
+        (a, b) => (b ? {
             type: 'BitAndExpression',
             left: a,
             right: b
-        }: a)
+        } : a)
     )
 );
 EqualityExpression.setPattern(
@@ -650,12 +650,12 @@ EqualityExpression.setPattern(
             ),
             RelationalExpression
         ),
-        (a, b) => (b? {
+        (a, b) => (b ? {
             type: 'EqualityExpression',
             left: a,
             operator: b[0].text as '==' | '!=' | '!=' | '!==',
             right: b[1]
-        }: a)
+        } : a)
     )
 );
 RelationalExpression.setPattern(
@@ -670,12 +670,12 @@ RelationalExpression.setPattern(
             ),
             BitShiftExpression
         ),
-        (a, b) => (b? {
+        (a, b) => (b ? {
             type: 'RelationalExpression',
             left: a,
             operator: b[0].text as '<' | '>' | '<=' | '>=',
             right: b[1]
-        }: a)
+        } : a)
     )
 );
 BitShiftExpression.setPattern(
@@ -689,12 +689,12 @@ BitShiftExpression.setPattern(
             ),
             AdditiveExpression
         ),
-        (a, b) => (b? {
+        (a, b) => (b ? {
             type: 'BitShiftExpression',
             left: a,
             operator: b[0].text as '>>' | '<<' | '>>>',
             right: b[1]
-        }: a)
+        } : a)
     )
 );
 AdditiveExpression.setPattern(
@@ -707,12 +707,12 @@ AdditiveExpression.setPattern(
             ),
             MultiplicativeExpression
         ),
-        (a, b) => (b? {
+        (a, b) => (b ? {
             type: 'AdditiveExpression',
             left: a,
             operator: b[0].text as '+' | '-',
             right: b[1]
-        }: a)
+        } : a)
     )
 );
 MultiplicativeExpression.setPattern(
@@ -725,12 +725,12 @@ MultiplicativeExpression.setPattern(
             ),
             AssertionExpression
         ),
-        (a, b) => (b? {
+        (a, b) => (b ? {
             type: 'MultiplicativeExpression',
             left: a,
             operator: b[0].text as '*' | '/',
             right: b[1]
-        }: a)
+        } : a)
     )
 );
 AssertionExpression.setPattern(
@@ -740,11 +740,11 @@ AssertionExpression.setPattern(
             tok(TokenKind.As),
             Type
         ),
-        (a, b) => (b? {
+        (a, b) => (b ? {
             type: 'AssertionExpression',
             expression: a,
             typeAnnotation: b
-        }: a)
+        } : a)
     )
 );
 UnaryExpression.setPattern(
@@ -754,6 +754,7 @@ UnaryExpression.setPattern(
         UnaryMinusExpression,
         BitNotExpression,
         NotExpression,
+        NewExpression,
         DeleteExpression,
         SizeofExpression
     )
@@ -923,23 +924,23 @@ PostfixExpression.setPattern(
             MemberExpression,
             CallExpression
         ),
-        (a, b) => (b? (
+        (a, b) => (b ? (
             b.type === 'IndexExpressionPostfixPart'
                 ? {
                     type: 'IndexExpression',
                     expression: a,
                     index: b.index
                 } : b.type === 'MemberExpressionPostfixPart'
-                ? {
-                    type: 'MemberExpression',
-                    expression: a,
-                    identifier: b.identifier
-                } : {
-                    type: 'CallExpression',
-                    expression: a,
-                    arguments: b.arguments
-                }
-        ): a)
+                    ? {
+                        type: 'MemberExpression',
+                        expression: a,
+                        identifier: b.identifier
+                    } : {
+                        type: 'CallExpression',
+                        expression: a,
+                        arguments: b.arguments
+                    }
+        ) : a)
     )
 );
 IndexExpression.setPattern(
@@ -1001,6 +1002,19 @@ SuperExpression.setPattern(
         })
     )
 );
+ParenthesizedExpression.setPattern(
+    apply(
+        kmid(
+            tok(TokenKind.OpenParen),
+            Expression,
+            tok(TokenKind.CloseParen)
+        ),
+        (value) => ({
+            type: 'ParenthesizedExpression',
+            expression: value
+        })
+    )
+);
 Literal.setPattern(
     alt(
         NullLiteral,
@@ -1049,8 +1063,8 @@ NumberLiteral.setPattern(
             number: value.kind === TokenKind.DecimalIntegerLiteral
                 ? parseInt(value.text)
                 : value.kind === TokenKind.DecimalFloatLiteral
-                ? parseFloat(value.text)
-                : parseInt(value.text, 10)
+                    ? parseFloat(value.text)
+                    : parseInt(value.text, 10)
         })
     )
 );
@@ -1086,9 +1100,14 @@ Parameter.setPattern(
     )
 );
 ParameterList.setPattern(
-    list_sc(
-        Parameter,
-        tok(TokenKind.Colon)
+    apply(
+        opt(
+            list_sc(
+                Parameter,
+                tok(TokenKind.Colon)
+            )
+        ),
+        (value) => value ?? []
     )
 );
 Arguments.setPattern(
@@ -1130,7 +1149,7 @@ Type.setPattern(
                     type: 'Type',
                     isVoid: false,
                     identifier: value[0],
-                    dimension: value[1].map(e => parseInt(e.text))
+                    dimensions: value[1].map(e => parseInt(e.text))
                 };
             } else {
                 return {
@@ -1159,3 +1178,4 @@ Identifier.setPattern(
         })
     )
 );
+export default Module;
