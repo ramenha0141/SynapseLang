@@ -242,6 +242,11 @@ interface NotExpressionContext {
     type: 'NotExpression',
     expression: ExpressionContext
 }
+interface NewExpressionContext {
+    type: 'NewExpression',
+    identifier: IdentifierContext,
+    arguments: ArgumentsContext
+}
 interface DeleteExpressionContext {
     type: 'DeleteExpression',
     expression: ExpressionContext
@@ -265,11 +270,6 @@ interface PostIncrementExpressionContext {
 interface PostDecrementExpressionContext {
     type: 'PostDecrementExpression',
     expression: ExpressionContext
-}
-interface NewExpressionContext {
-    type: 'NewExpression',
-    identifier: IdentifierContext,
-    arguments: ArgumentsContext
 }
 interface IndexExpressionContext {
     type: 'IndexExpression',
@@ -306,7 +306,7 @@ interface NullLiteralContext {
 }
 interface BooleanLiteralContext {
     type: 'BooleanLiteral',
-    text: string
+    text: 'true' | 'false'
 }
 interface StringLiteralContext {
     type: 'StringLiteral',
@@ -315,7 +315,7 @@ interface StringLiteralContext {
 interface NumberLiteralContext {
     type: 'NumberLiteral',
     isFloat: boolean,
-    text: string
+    number: number
 }
 interface ArrayLiteralContext {
     type: 'ArrayLiteral',

@@ -61,6 +61,7 @@ const SuperExpression = rule<TokenKind, SuperExpressionContext>()
 const Literal = rule<TokenKind, LiteralContext>();;
 const ParenthesizedExpression = rule<TokenKind, ExpressionContext>();
 const NullLiteral = rule<TokenKind, NullLiteralContext>();
+const BooleanLiteral = rule<TokenKind, BooleanLiteralContext>();
 const StringLiteral = rule<TokenKind, StringLiteralContext>();
 const NumberLiteral = rule<TokenKind, NumberLiteralContext>();
 const ArrayLiteral = rule<TokenKind, ArrayLiteralContext>();
@@ -972,6 +973,102 @@ CallExpression.setPattern(
         (value) => ({
             type: 'CallExpressionPostfixPart',
             arguments: value
+        })
+    )
+);
+PrimaryExpression.setPattern(
+    alt(
+        ThisExpression,
+        Identifier,
+        SuperExpression,
+        Literal,
+        ParenthesizedExpression
+    )
+);
+ThisExpression.setPattern(
+    apply(
+        tok(TokenKind.This),
+        (value) => ({
+            type: 'ThisExpression'
+        })
+    )
+);
+SuperExpression.setPattern(
+    apply(
+        tok(TokenKind.Super),
+        (value) => ({
+            type: 'SuperExpression'
+        })
+    )
+);
+Literal.setPattern(
+    alt(
+        NullLiteral,
+        BooleanLiteral,
+        StringLiteral,
+        NumberLiteral,
+        ArrayLiteral
+    )
+);
+NullLiteral.setPattern(
+    apply(
+        tok(TokenKind.NullLiteral),
+        (value) => ({
+            type: 'NullLiteral'
+        })
+    )
+);
+BooleanLiteral.setPattern(
+    apply(
+        tok(TokenKind.BooleanLiteral),
+        (value) => ({
+            type: 'BooleanLiteral',
+            text: value.text as 'true' | 'false'
+        })
+    )
+);
+StringLiteral.setPattern(
+    apply(
+        tok(TokenKind.StringLiteral),
+        (value) => ({
+            type: 'StringLiteral',
+            text: value.text.slice(1, -1)
+        })
+    )
+);
+NumberLiteral.setPattern(
+    apply(
+        alt(
+            tok(TokenKind.DecimalIntegerLiteral),
+            tok(TokenKind.DecimalFloatLiteral),
+            tok(TokenKind.HexIntegerLiteral)
+        ),
+        (value) => ({
+            type: 'NumberLiteral',
+            isFloat: value.kind === TokenKind.DecimalFloatLiteral,
+            number: value.kind === TokenKind.DecimalIntegerLiteral
+                ? parseInt(value.text)
+                : value.kind === TokenKind.DecimalFloatLiteral
+                ? parseFloat(value.text)
+                : parseInt(value.text, 10)
+        })
+    )
+);
+ArrayLiteral.setPattern(
+    apply(
+        kmid(
+            tok(TokenKind.OpenBracket),
+            opt(
+                list_sc(
+                    Expression,
+                    tok(TokenKind.Comma)
+                )
+            ),
+            tok(TokenKind.CloseBracket)
+        ),
+        (value) => ({
+            type: 'ArrayLiteral',
+            items: value ?? []
         })
     )
 );
