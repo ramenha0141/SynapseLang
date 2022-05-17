@@ -11,6 +11,10 @@ const parse_parameter = (argv: string[]): CompilerOptions => {
                 parameter.filePath = argv.shift();
                 break;
             }
+            case '-rootDir': {
+                parameter.rootDir = argv.shift();
+                break;
+            }
             case '-arch': {
                 parameter.arch = argv.shift();
                 break;
