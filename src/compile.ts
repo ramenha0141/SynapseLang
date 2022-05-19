@@ -8,8 +8,13 @@ const compile = (options: CompilerOptions) => {
     const rootDir = options.rootDir ?? './';
     const builtinsPath = '';
     const moduleMap: ModuleMap = {};
-    const loadModule = (modulePath: string) => {
-        const source = fs.readFileSync(path.join(rootDir, modulePath), 'utf-8');
+    const loadModule = (modulePath: string, isBuiltin?: boolean) => {
+        const source = fs.readFileSync(
+            isBuiltin
+                ? path.join(builtinsPath, modulePath + '.syn')
+                : path.join(rootDir, modulePath),
+            'utf-8'
+        );
         const moduleContext = parser(source);
         const module = new Module(modulePath, moduleContext.declarations);
         for (const importContext of moduleContext.importDeclarations) {
@@ -33,15 +38,16 @@ const compile = (options: CompilerOptions) => {
                     break;
                 }
                 case 'ImportBuiltinDeclaration': {
-                    const targetPath = path.join(builtinsPath, importContext.identifier + 'syn');
+                    const targetPath = importContext.identifier;
                     if (!moduleMap[targetPath]) {
-                        loadModule(targetPath);
+                        loadModule(targetPath, true);
                     }
                     module.import(importContext.identifier, moduleMap[targetPath]);
                     break;
                 }
             }
         }
+        moduleMap[modulePath] = module;
     };
     loadModule(entryPath);
     console.log(moduleMap);
