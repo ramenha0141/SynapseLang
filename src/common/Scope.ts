@@ -1,7 +1,8 @@
 import llvm from 'llvm-bindings';
+import Module from './Module';
 
 export interface Symbols {
-    [key: string]: llvm.Value | llvm.Function,
+    [key: string]: llvm.Value | llvm.Function | Module,
     [key: symbol]: llvm.BasicBlock
 }
 class Scope {
@@ -11,6 +12,11 @@ class Scope {
     }
     parent?: Scope;
     private symbols: Symbols = {};
+    getSymbol(identifier: string): llvm.Value | llvm.Function | Module {
+        const symbol = this.symbols[identifier];
+        if (!symbol) throw Error();
+        return symbol;
+    }
     getVariable(identifier: string): llvm.Value {
         const symbol = this.symbols[identifier];
         if (!symbol) throw Error();
@@ -23,6 +29,12 @@ class Scope {
         if (!(symbol instanceof llvm.Function)) throw Error();
         return symbol;
     }
+    getModule(identifier: string): Module {
+        const symbol = this.symbols[identifier];
+        if (!symbol) throw Error();
+        if (!(symbol instanceof Module)) throw Error();
+        return symbol;
+    }
     getBreakBlock(): llvm.BasicBlock {
         const symbol = this.symbols[Symbol.for('break')];
         if (!symbol) throw Error();
@@ -32,6 +44,9 @@ class Scope {
         const symbol = this.symbols[Symbol.for('continue')];
         if (!symbol) throw Error();
         return symbol;
+    }
+    import(identifier: string, symbol: llvm.Value | llvm.Function | Module) {
+        this.symbols[identifier] = symbol;
     }
 }
 export default Scope;

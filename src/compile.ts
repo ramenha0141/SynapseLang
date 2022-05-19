@@ -1,27 +1,49 @@
 import fs from 'fs';
 import path from 'path';
-import parser from './parser/index.js';
-import module_resolver from './module_resolver.js';
+import parser from './parser';
+import module_resolver from './module_resolver';
+import Module, { ModuleMap } from './common/Module';
 const compile = (options: CompilerOptions) => {
-    const rootDir = options.rootDir ?? './';
     const entryPath = options.filePath ?? 'index.syn';
-};
-const loadModule = (modulePath: string, rootDir: string, moduleMap?: ModuleMap): ModuleMap => {
-    const source = fs.readFileSync(path.join(rootDir, modulePath), 'utf-8');
-    const moduleContext = parser(source);
-    const importContexts = moduleContext.importDeclarations;
-    moduleMap ??= { entry: moduleContext.declarations };
-    for (const importContext of importContexts) {
-        switch (importContext.type) {
-            case 'ImportDefineDeclaration': {
-                const targetPath = module_resolver(modulePath, importContext.path);
-                if (!moduleMap[targetPath]) {
-                    loadModule(targetPath, rootDir, moduleMap);
+    const rootDir = options.rootDir ?? './';
+    const builtinsPath = '';
+    const moduleMap: ModuleMap = {};
+    const loadModule = (modulePath: string) => {
+        const source = fs.readFileSync(path.join(rootDir, modulePath), 'utf-8');
+        const moduleContext = parser(source);
+        const module = new Module(modulePath, moduleContext.declarations);
+        for (const importContext of moduleContext.importDeclarations) {
+            switch (importContext.type) {
+                case 'ImportDefineDeclaration': {
+                    const targetPath = module_resolver(modulePath, importContext.path);
+                    if (!moduleMap[targetPath]) {
+                        loadModule(targetPath);
+                    }
+                    for (const identifier of importContext.defines) {
+                        module.import(identifier, moduleMap[targetPath].getSymbol(identifier));
+                    }
+                    break;
                 }
-                
+                case 'ImportNamespaceDeclaration': {
+                    const targetPath = module_resolver(modulePath, importContext.path);
+                    if (!moduleMap[targetPath]) {
+                        loadModule(targetPath);
+                    }
+                    module.import(importContext.identifier, moduleMap[targetPath]);
+                    break;
+                }
+                case 'ImportBuiltinDeclaration': {
+                    const targetPath = path.join(builtinsPath, importContext.identifier + 'syn');
+                    if (!moduleMap[targetPath]) {
+                        loadModule(targetPath);
+                    }
+                    module.import(importContext.identifier, moduleMap[targetPath]);
+                    break;
+                }
             }
         }
-    }
-    return moduleMap;
+    };
+    loadModule(entryPath);
+    console.log(moduleMap);
 };
 export default compile;
