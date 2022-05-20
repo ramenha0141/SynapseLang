@@ -19,13 +19,15 @@ class FunctionDeclaration extends Scope {
         const functionType = llvm.FunctionType.get(returnType, parameterTypes, false);
         module.import(
             context.identifier,
-            this.llvmFunction = llvm.Function.Create(functionType, llvm.Function.LinkageTypes.PrivateLinkage, `${module.id}::${context.identifier}`, llvmModule)
+            this.llvmFunction = llvm.Function.Create(functionType, llvm.Function.LinkageTypes.PrivateLinkage, `"${module.id}::${context.identifier}"`, llvmModule)
         );
+        module.setFunctionContext(this.llvmFunction);
         const basicBlock = llvm.BasicBlock.Create(llvmContext, undefined, this.llvmFunction);
         builder.SetInsertPoint(basicBlock);
         for (let i = 0; i < context.parameterList.length; i++) {
             const variable = builder.CreateAlloca(parameterTypes[i]);
             builder.CreateStore(this.llvmFunction.getArg(i), variable);
+            module.import(context.parameterList[i].identifier, variable);
         };
     }
     context: FunctionDeclarationContext;
