@@ -17,6 +17,12 @@ class Scope {
         if (!symbol) throw Error();
         return symbol;
     }
+    getType(identifier: string): llvm.Type {
+        const symbol = this.symbols[identifier];
+        if (!symbol) throw Error();
+        if (!(symbol instanceof llvm.Type)) throw Error();
+        return symbol;
+    }
     getVariable(identifier: string): llvm.Value {
         const symbol = this.symbols[identifier];
         if (!symbol) throw Error();

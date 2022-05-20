@@ -162,7 +162,9 @@ FunctionDeclaration.setPattern(
                 ParameterList,
                 tok(TokenKind.CloseParen)
             ),
-            TypeAnnotation,
+            opt(
+                TypeAnnotation
+            ),
             BlockStatement
         ),
         (value) => ({

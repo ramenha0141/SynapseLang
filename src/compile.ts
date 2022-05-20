@@ -3,11 +3,17 @@ import path from 'path';
 import parser from './parser';
 import module_resolver from './module_resolver';
 import Module, { ModuleMap } from './common/Module';
+import llvm from 'llvm-bindings';
+declare var llvmModule: llvm.Module;
+declare var builder: llvm.IRBuilder;
 const compile = (options: CompilerOptions) => {
     const entryPath = options.filePath ?? 'index.syn';
     const rootDir = options.rootDir ?? './';
     const builtinsPath = '';
     const moduleMap: ModuleMap = {};
+    const llvmContext = new llvm.LLVMContext();
+    builder = new llvm.IRBuilder(llvmContext);
+    llvmModule = new llvm.Module(entryPath, llvmContext);
     const loadModule = (modulePath: string, isBuiltin?: boolean) => {
         const source = fs.readFileSync(
             isBuiltin

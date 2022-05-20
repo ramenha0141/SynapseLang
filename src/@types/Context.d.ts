@@ -28,7 +28,7 @@ interface FunctionDeclarationContext {
     type: 'FunctionDeclaration',
     identifier: string,
     parameterList: ParameterContext[],
-    typeAnnotation: TypeContext,
+    typeAnnotation?: TypeContext,
     body: BlockStatementContext
 }
 interface DeclareDeclarationContext {
