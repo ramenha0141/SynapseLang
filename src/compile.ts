@@ -9,9 +9,9 @@ const compile = (options: CompilerOptions) => {
     const rootDir = options.rootDir ?? './';
     const builtinsPath = '';
     const moduleMap: ModuleMap = {};
-    llvmContext = new llvm.LLVMContext();
-    builder = new llvm.IRBuilder(llvmContext);
-    llvmModule = new llvm.Module(entryPath, llvmContext);
+    global.llvmContext = new llvm.LLVMContext();
+    global.builder = new llvm.IRBuilder(llvmContext);
+    global.llvmModule = new llvm.Module(entryPath, llvmContext);
     const loadModule = (modulePath: string, isBuiltin?: boolean) => {
         const source = fs.readFileSync(
             isBuiltin
