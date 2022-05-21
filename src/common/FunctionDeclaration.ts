@@ -22,7 +22,7 @@ class FunctionDeclaration extends Scope {
             this.llvmFunction = llvm.Function.Create(functionType, llvm.Function.LinkageTypes.PrivateLinkage, `"${module.id}::${context.identifier}"`, llvmModule)
         );
         module.setFunctionContext(this.llvmFunction);
-        const basicBlock = llvm.BasicBlock.Create(llvmContext, undefined, this.llvmFunction);
+        const basicBlock = this.basicBlock = llvm.BasicBlock.Create(llvmContext, undefined, this.llvmFunction);
         builder.SetInsertPoint(basicBlock);
         for (let i = 0; i < context.parameterList.length; i++) {
             const variable = builder.CreateAlloca(parameterTypes[i]);
@@ -32,5 +32,10 @@ class FunctionDeclaration extends Scope {
     }
     context: FunctionDeclarationContext;
     llvmFunction: llvm.Function;
+    basicBlock: llvm.BasicBlock;
+    generate() {
+        builder.SetInsertPoint(this.basicBlock);
+        
+    }
 }
 export default FunctionDeclaration;
