@@ -2,6 +2,7 @@ import llvm from 'llvm-bindings';
 
 import Module from './Module';
 import Scope from './Scope';
+import * as Statement from './Statement';
 
 class FunctionDeclaration extends Scope {
     constructor(context: FunctionDeclarationContext, module: Module) {
@@ -19,7 +20,7 @@ class FunctionDeclaration extends Scope {
         const functionType = llvm.FunctionType.get(returnType, parameterTypes, false);
         module.import(
             context.identifier,
-            this.llvmFunction = llvm.Function.Create(functionType, llvm.Function.LinkageTypes.PrivateLinkage, `"${module.id}::${context.identifier}"`, llvmModule)
+            this.llvmFunction = llvm.Function.Create(functionType, llvm.Function.LinkageTypes.PrivateLinkage, `${module.id}::${context.identifier}`, llvmModule)
         );
         module.setFunctionContext(this.llvmFunction);
         const basicBlock = this.basicBlock = llvm.BasicBlock.Create(llvmContext, undefined, this.llvmFunction);
@@ -35,7 +36,7 @@ class FunctionDeclaration extends Scope {
     basicBlock: llvm.BasicBlock;
     generate() {
         builder.SetInsertPoint(this.basicBlock);
-        
+        Statement.Statement(this.context.body, this);
     }
 }
 export default FunctionDeclaration;

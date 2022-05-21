@@ -5,5 +5,8 @@ class ClassDeclaration {
         this.context = context;
     }
     context: ClassDeclarationContext;
+    generate() {
+        
+    }
 }
 export default ClassDeclaration;

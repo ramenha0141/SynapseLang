@@ -5,5 +5,8 @@ class VariableDeclaration {
         this.context = context;
     }
     context: VariableDeclarationContext;
+    generate() {
+        
+    }
 }
 export default VariableDeclaration;

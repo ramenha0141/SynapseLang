@@ -1,4 +1,5 @@
 import llvm from 'llvm-bindings';
+import * as Expression from './Expression';
 import Scope from './Scope';
 
 const isPointerTy = (type: llvm.Type): type is llvm.PointerType => type.isPointerTy();
@@ -10,4 +11,7 @@ const toBool = (value: llvm.Value, scope: Scope) => {
     if (isPointerTy(type)) return builder.CreateICmpNE(value, llvm.ConstantPointerNull.get(type));
     throw Error();
 };
-export default toBool;
+const condition = (context: ExpressionContext, scope: Scope) => {
+    return toBool(Expression.Expression(context, scope, llvm.Type.getInt1Ty(llvmContext)), scope);
+};
+export default condition;

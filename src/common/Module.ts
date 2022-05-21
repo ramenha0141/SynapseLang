@@ -31,6 +31,9 @@ class Module extends Scope {
                 }
             }
         }
+        for (const declaration of this.declarations) {
+            declaration.generate();
+        }
     }
     id: string;
     declarations: (FunctionDeclaration | DeclareDeclaration | VariableDeclaration | ClassDeclaration)[] = [];

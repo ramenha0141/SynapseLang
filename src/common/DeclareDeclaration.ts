@@ -5,5 +5,8 @@ class DeclareDeclaration {
         this.context = context;
     }
     context: DeclareDeclarationContext;
+    generate() {
+        
+    }
 }
 export default DeclareDeclaration;

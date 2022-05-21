@@ -54,6 +54,6 @@ const compile = (options: CompilerOptions) => {
         moduleMap[modulePath] = module;
     };
     loadModule(entryPath);
-    console.log(moduleMap);
+    console.log(llvmModule.print());
 };
 export default compile;
