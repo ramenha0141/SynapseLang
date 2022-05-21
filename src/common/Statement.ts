@@ -1,4 +1,6 @@
+import llvm from 'llvm-bindings';
 import Scope, { Symbols } from './Scope';
+import toBool from './toBool';
 
 export const Statement = (context: StatementContext, scope: Scope) => {
     switch (context.type) {
@@ -17,3 +19,12 @@ export const ExpressionStatement = (context: ExpressionStatementContext, scope: 
 export const ReturnStatement = (context: ReturnStatementContext, scope: Scope) => {
     // builder.CreateRet()
 };
+export const IfStatement = (context: IfStatementContext, scope: Scope) => {
+    const functionContext = scope.getFunctionContext();
+    // const condition = toBool(Expression.Expression(context.condition, scope), scope);
+    if (context.else) {
+
+    } else {
+        
+    }
+}
