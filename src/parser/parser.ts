@@ -1147,21 +1147,17 @@ Type.setPattern(
                 )
             )
         ),
-        (value) => {
-            if (Array.isArray(value)) {
-                return {
-                    type: 'Type',
-                    isVoid: false,
-                    identifier: value[0],
-                    dimensions: value[1].map(e => parseInt(e.text))
-                };
-            } else {
-                return {
-                    type: 'Type',
-                    isVoid: true
-                };
+        (value) => Array.isArray(value)
+            ? {
+                type: 'Type',
+                isVoid: false,
+                identifier: value[0],
+                dimensions: value[1].map(e => parseInt(e.text))
             }
-        }
+            : {
+                type: 'Type',
+                isVoid: true
+            }
     )
 );
 TypeAnnotation.setPattern(
