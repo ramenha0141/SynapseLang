@@ -376,7 +376,9 @@ ReturnStatement.setPattern(
     apply(
         kmid(
             tok(TokenKind.Return),
-            Expression,
+            opt(
+                Expression
+            ),
             eos
         ),
         (value) => ({

@@ -1,4 +1,4 @@
 import a from './2.syn';
 function main() {
-    
+    return;
 }

@@ -89,7 +89,7 @@ interface ExpressionStatementContext {
 }
 interface ReturnStatementContext {
     type: 'ReturnStatement',
-    expression: ExpressionContext
+    expression?: ExpressionContext
 }
 interface IfStatementContext {
     type: 'IfStatement',
