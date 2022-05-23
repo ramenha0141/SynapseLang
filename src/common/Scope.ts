@@ -26,17 +26,17 @@ class Scope {
         if (!(symbol instanceof llvm.Type)) throw Error();
         return symbol;
     }
-    getVariable(identifier: string): llvm.Value {
+    getVariable(identifier: string | string[]): llvm.Value {
         const symbol = this.getSymbol(identifier);
         if (!(symbol instanceof llvm.Value)) throw Error();
         return symbol;
     }
-    getFunction(identifier: string): llvm.Function {
+    getFunction(identifier: string | string[]): llvm.Function {
         const symbol = this.getSymbol(identifier);
         if (!(symbol instanceof llvm.Function)) throw Error();
         return symbol;
     }
-    getModule(identifier: string): Module {
+    getModule(identifier: string | string[]): Module {
         const symbol = this.getSymbol(identifier);
         if (!(symbol instanceof Module)) throw Error();
         return symbol;
