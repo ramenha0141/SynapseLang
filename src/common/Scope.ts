@@ -2,7 +2,7 @@ import llvm from 'llvm-bindings';
 import Module from './Module';
 
 export interface Symbols {
-    [key: string]: llvm.Value | llvm.Function | Module,
+    [key: string]: llvm.Type | llvm.Value | llvm.Function | Module,
     [key: symbol]: llvm.Function | llvm.BasicBlock
 }
 class Scope {

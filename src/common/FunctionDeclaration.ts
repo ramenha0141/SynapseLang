@@ -6,7 +6,7 @@ import * as Statement from './Statement';
 
 class FunctionDeclaration extends Scope {
     constructor(context: FunctionDeclarationContext, module: Module) {
-        super(module);
+        super(module, {int: llvm.Type.getInt32Ty(llvmContext)});
         this.context = context;
         const returnType = context.typeAnnotation
             ? context.typeAnnotation.isVoid
