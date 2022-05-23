@@ -30,11 +30,11 @@ export const VariableDeclaration = (context: VariableDeclarationContext, scope: 
     if (!context.expression && context.isConstant) throw Error();
     // Type annotation or expression are required
     if (!context.expression && !context.typeAnnotation) throw Error();
-    const expectedType = context.typeAnnotation && scope.getType(context.typeAnnotation.identifier.identifiers);
-    const expression = context.expression && Expression.Expression(context.expression, scope, expectedType);
+    const typeAnnotation = context.typeAnnotation && scope.getType(context.typeAnnotation.identifier.identifiers);
+    const expression = context.expression && Expression.Expression(context.expression, scope, typeAnnotation);
     // Type conflict between type annotation and expression
-    if (expression && expectedType && expression?.getType().getTypeID() === expectedType.getTypeID()) throw Error();
-    const variable = builder.CreateAlloca(expectedType ?? expression?.getType() ?? llvm.Type.getInt32Ty(llvmContext));
+    if (expression && typeAnnotation && expression?.getType().getTypeID() === typeAnnotation.getTypeID()) throw Error();
+    const variable = builder.CreateAlloca(typeAnnotation ?? expression?.getType() ?? llvm.Type.getInt32Ty(llvmContext));
     if (expression) builder.CreateStore(expression, variable);
 };
 export const ExpressionStatement = (context: ExpressionStatementContext, scope: Scope) => {
