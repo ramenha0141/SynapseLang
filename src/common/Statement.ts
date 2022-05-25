@@ -43,10 +43,12 @@ export const ExpressionStatement = (context: ExpressionStatementContext, scope: 
 export const ReturnStatement = (context: ReturnStatementContext, scope: Scope) => {
     const functionContext = scope.getFunctionContext();
     const expectedType = functionContext.getReturnType();
-    const returnValue = context.expression
-        ? Expression.Expression(context.expression, scope, expectedType)
-        : llvm.UndefValue.get(llvm.Type.getVoidTy(llvmContext));
-    builder.CreateRet(returnValue);
+    if (context.expression) {
+        const returnValue = Expression.Expression(context.expression, scope, expectedType);
+        builder.CreateRet(returnValue);
+    } else {
+        builder.CreateRetVoid();
+    }
 };
 export const IfStatement = (context: IfStatementContext, scope: Scope) => {
     const functionContext = scope.getFunctionContext();

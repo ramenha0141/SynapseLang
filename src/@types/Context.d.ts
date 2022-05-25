@@ -253,7 +253,7 @@ interface DeleteExpressionContext {
 }
 interface SizeofExpressionContext {
     type: 'SizeofExpression',
-    expression: ExpressionContext
+    typeAnnotation: TypeContext
 }
 interface PreIncrementExpressionContext {
     type: 'PreIncrementExpression',

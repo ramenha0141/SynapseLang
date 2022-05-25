@@ -843,11 +843,11 @@ SizeofExpression.setPattern(
     apply(
         kright(
             tok(TokenKind.Sizeof),
-            UnaryExpression
+            Type
         ),
         (value) => ({
             type: 'SizeofExpression',
-            expression: value
+            typeAnnotation: value
         })
     )
 );

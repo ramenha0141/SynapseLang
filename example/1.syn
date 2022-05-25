@@ -1,5 +1,4 @@
 import a from './2.syn';
-function main() {
-    let a: int;
-    return;
+function main(): int {
+    return sizeof int;
 }

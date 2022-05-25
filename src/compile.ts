@@ -20,7 +20,7 @@ const compile = (options: CompilerOptions) => {
             'utf-8'
         );
         const moduleContext = parser(source);
-        const module = new Module(modulePath, moduleContext.declarations);
+        const module = new Module(modulePath, moduleContext.declarations, { int: llvm.Type.getInt32Ty(llvmContext) });
         for (const importContext of moduleContext.importDeclarations) {
             switch (importContext.type) {
                 case 'ImportDefineDeclaration': {
