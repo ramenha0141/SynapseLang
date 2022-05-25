@@ -18,27 +18,27 @@ class Scope {
                 ? this.getModule(identifier[0])?.getSymbol(identifier.slice(1))
                 : this.getSymbol(identifier[0])
             : this.symbols[identifier] ?? this.parent?.getSymbol(identifier);
-        if (!symbol) throw Error();
+        if (!symbol) throw new Error();
         return symbol;
     }
     getType(identifier: string | string[]): llvm.Type {
         const symbol = this.getSymbol(identifier);
-        if (!(symbol instanceof llvm.Type)) throw Error();
+        if (!(symbol instanceof llvm.Type)) throw new Error();
         return symbol;
     }
     getVariable(identifier: string | string[]): llvm.Value {
         const symbol = this.getSymbol(identifier);
-        if (!(symbol instanceof llvm.Value)) throw Error();
+        if (!(symbol instanceof llvm.Value)) throw new Error();
         return symbol;
     }
     getFunction(identifier: string | string[]): llvm.Function {
         const symbol = this.getSymbol(identifier);
-        if (!(symbol instanceof llvm.Function)) throw Error();
+        if (!(symbol instanceof llvm.Function)) throw new Error();
         return symbol;
     }
     getModule(identifier: string | string[]): Module {
         const symbol = this.getSymbol(identifier);
-        if (!(symbol instanceof Module)) throw Error();
+        if (!(symbol instanceof Module)) throw new Error();
         return symbol;
     }
     getBreakBlock(): llvm.BasicBlock {
@@ -57,7 +57,7 @@ class Scope {
     }
     getFunctionContext(): llvm.Function {
         const symbol = this.getSymbol(Symbol.for('functionContext'));
-        if (!(symbol instanceof llvm.Function)) throw Error();
+        if (!(symbol instanceof llvm.Function)) throw new Error();
         return symbol;
     }
 }

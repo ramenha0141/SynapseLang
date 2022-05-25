@@ -14,7 +14,7 @@ class FunctionDeclaration extends Scope {
                 : module.getType(context.typeAnnotation.identifier.identifiers)
             : llvm.Type.getVoidTy(llvmContext);
         const parameterTypes = context.parameterList.map((parameter) => {
-            if (parameter.typeAnnotation.isVoid) throw Error();
+            if (parameter.typeAnnotation.isVoid) throw new Error();
             return module.getType(parameter.typeAnnotation.identifier.identifiers);
         });
         const functionType = llvm.FunctionType.get(returnType, parameterTypes, false);

@@ -6,7 +6,7 @@ import Condition from './Condition';
 const Reference = (context: ExpressionContext, scope: Scope): llvm.Value => {
     switch (context.type) {
         case 'Identifier': return IdentifierReference(context, scope);
-        default: throw Error();
+        default: throw new Error();
     }
 };
 const IdentifierReference = (context: IdentifierContext, scope: Scope): llvm.Value => {
@@ -45,7 +45,7 @@ export const TernaryExpression = (context: TernaryExpressionContext, scope: Scop
     builder.CreateBr(endBlock);
     builder.SetInsertPoint(endBlock);
     // Type conflict between then expression and else expression
-    if (thenExpression.getType().getTypeID() !== elseExpression.getType().getTypeID()) throw Error();
+    if (thenExpression.getType().getTypeID() !== elseExpression.getType().getTypeID()) throw new Error();
     const expression = builder.CreatePHI(thenExpression.getType(), 2);
     expression.addIncoming(thenExpression, thenBlock);
     expression.addIncoming(elseExpression, elseBlock);
