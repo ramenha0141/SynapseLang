@@ -51,3 +51,85 @@ export const TernaryExpression = (context: TernaryExpressionContext, scope: Scop
     expression.addIncoming(elseExpression, elseBlock);
     return expression;
 };
+export const LogicalOrExpression = (context: LogicalOrExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
+    const left = Condition(context.left, scope);
+    const right = Condition(context.right, scope);
+    return builder.CreateOr(left, right);
+};
+export const LogicalAndExpression = (context: LogicalAndExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
+    const left = Condition(context.left, scope);
+    const right = Condition(context.right, scope);
+    return builder.CreateAnd(left, right);
+};
+export const BitOrExpression = (context: BitOrExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
+    const left = Expression(context.left, scope, expectedType);
+    const right = Expression(context.right, scope, expectedType);
+    if (left.getType().getTypeID() !== right.getType().getTypeID()) throw new Error();
+    return builder.CreateOr(right, left);
+};
+export const BitXOrExpression = (context: BitXOrExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
+    const left = Expression(context.left, scope, expectedType);
+    const right = Expression(context.right, scope, expectedType);
+    if (left.getType().getTypeID() !== right.getType().getTypeID()) throw new Error();
+    return builder.CreateXor(right, left);
+};
+export const BitAndExpression = (context: BitAndExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
+    const left = Expression(context.left, scope, expectedType);
+    const right = Expression(context.right, scope, expectedType);
+    if (left.getType().getTypeID() !== right.getType().getTypeID()) throw new Error();
+    return builder.CreateAnd(right, left);
+};
+export const EqualityExpression = (context: EqualityExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
+    const left = Expression(context.left, scope, expectedType);
+    const right = Expression(context.right, scope, expectedType);
+    if (left.getType().getTypeID() !== right.getType().getTypeID()) throw new Error();
+    const type = left.getType();
+    if (type.isIntegerTy() || type.isPointerTy()) {
+        switch (context.operator) {
+            case '==':
+            case '===': return builder.CreateICmpEQ(left, right);
+            case '!=':
+            case '!==': return builder.CreateICmpNE(left, right);
+        }
+    } else if (type.isFloatingPointTy()) {
+        switch (context.operator) {
+            case '==':
+            case '===': return builder.CreateFCmpOEQ(left, right);
+            case '!=':
+            case '!==': return builder.CreateFCmpONE(left, right);
+        }
+    }
+    throw new Error();
+};
+export const RelationalExpression = (context: RelationalExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
+    const left = Expression(context.left, scope, expectedType);
+    const right = Expression(context.right, scope, expectedType);
+    if (left.getType().getTypeID() !== right.getType().getTypeID()) throw new Error();
+    const type = left.getType();
+    if (type.isIntegerTy()) {
+        switch (context.operator) {
+            case '<': return builder.CreateICmpSLT(left, right);
+            case '>': return builder.CreateICmpSGT(left, right);
+            case '<=': return builder.CreateICmpSGE(left, right);
+            case '>=': return builder.CreateICmpSGE(left, right);
+        }
+    } else if (type.isFloatingPointTy()) {
+        switch (context.operator) {
+            case '<': return builder.CreateFCmpOLT(left, right);
+            case '>': return builder.CreateFCmpOGT(left, right);
+            case '<=': return builder.CreateFCmpOLE(left, right);
+            case '>=': return builder.CreateFCmpOGE(left, right);
+        }
+    }
+    throw new Error();
+};
+export const BitShiftExpression = (context: BitShiftExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
+    const left = Expression(context.left, scope, expectedType);
+    const right = Expression(context.right, scope, expectedType);
+    if (left.getType().getTypeID() !== right.getType().getTypeID()) throw new Error();
+    switch (context.operator) {
+        case '<<': return builder.CreateShl(left, right);
+        case '>>': return builder.CreateAShr(left, right);
+        case '>>>': return builder.CreateLShr(left, right);
+    }
+};

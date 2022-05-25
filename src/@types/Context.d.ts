@@ -206,7 +206,7 @@ interface RelationalExpressionContext {
 interface BitShiftExpressionContext {
     type: 'BitShiftExpression',
     left: ExpressionContext,
-    operator: '>>' | '<<' | '>>>',
+    operator: '<<' |'>>' |  '>>>',
     right: ExpressionContext
 }
 interface AdditiveExpressionContext {

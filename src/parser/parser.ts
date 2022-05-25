@@ -687,8 +687,8 @@ BitShiftExpression.setPattern(
         AdditiveExpression,
         seq(
             alt(
-                tok(TokenKind.RightShiftArithmetic),
                 tok(TokenKind.LeftShiftArithmetic),
+                tok(TokenKind.RightShiftArithmetic),
                 tok(TokenKind.RightShiftLogical)
             ),
             AdditiveExpression
