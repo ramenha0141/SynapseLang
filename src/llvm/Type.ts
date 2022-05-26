@@ -222,3 +222,6 @@ class Type {
     }
 }
 export default Type;
+class FunctionType {
+    
+}
