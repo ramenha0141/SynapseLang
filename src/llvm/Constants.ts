@@ -1,8 +1,13 @@
-import Type, { IntegerType } from './Type';
+import Type, { IntegerType, PointerType, TypeID } from './Type';
 import Value from './Value';
 
 export class Constant extends Value {
-
+    static getNullValue(type: Type): Constant {
+        switch (type.getTypeID()) {
+            case TypeID.PointerTyID: return ConstantPointerNull.get(type as PointerType);
+            default: throw new Error();
+        }
+    }
 }
 export class ConstantInt extends Constant {
     private Val: number;
@@ -19,5 +24,13 @@ export class ConstantInt extends Constant {
     }
     static getFalse(): ConstantInt {
         return new ConstantInt(Type.getInt1Ty(), 0);
+    }
+}
+export class ConstantPointerNull extends Constant {
+    protected constructor(Ty: Type) {
+        super(Ty);
+    }
+    static get(type: PointerType): ConstantPointerNull {
+        return new ConstantPointerNull(type);
     }
 }
