@@ -28,7 +28,7 @@ class Type {
         this.ID = tid;
     }
     private ID: TypeID = TypeID.LabelTyID;
-    private SubclassData: number = 0;
+    protected SubclassData: number = 0;
     protected getSubclassData() {
         return this.SubclassData;
     }
@@ -186,42 +186,37 @@ class Type {
         return new Type(TypeID.TokenTyID);
     }
     static getInt1Ty() {
-        const int = new Type(TypeID.IntegerTyID);
-        int.SubclassData = 1;
-        return int;
+        return IntegerType.get(1);
     }
     static getInt8Ty() {
-        const int = new Type(TypeID.IntegerTyID);
-        int.SubclassData = 8;
-        return int;
+        return IntegerType.get(8);
     }
     static getInt16Ty() {
-        const int = new Type(TypeID.IntegerTyID);
-        int.SubclassData = 16;
-        return int;
+        return IntegerType.get(16);
     }
     static getInt32Ty() {
-        const int = new Type(TypeID.IntegerTyID);
-        int.SubclassData = 32;
-        return int;
+        return IntegerType.get(32);
     }
     static getInt64Ty() {
-        const int = new Type(TypeID.IntegerTyID);
-        int.SubclassData = 64;
-        return int;
+        return IntegerType.get(64);
     }
     static getInt128Ty() {
-        const int = new Type(TypeID.IntegerTyID);
-        int.SubclassData = 128;
-        return int;
+        return IntegerType.get(128);
     }
-    static getIntNTy(bit: number) {
-        const int = new Type(TypeID.IntegerTyID);
-        int.SubclassData = bit;
-        return int;
+    static getIntNTy(numBits: number) {
+        return IntegerType.get(numBits);
     }
 }
 export default Type;
+export class IntegerType extends Type {
+    protected constructor(numBits: number) {
+        super(TypeID.IntegerTyID);
+        this.SubclassData = numBits;
+    }
+    static get(numBits: number): IntegerType {
+        return new IntegerType(numBits);
+    }
+}
 export class FunctionType extends Type {
     returnType: Type;
     paramTypes: Type[];
@@ -234,5 +229,18 @@ export class FunctionType extends Type {
     }
     public static get(returnType: Type, paramTypes: Type[], isVarArg: boolean): FunctionType {
         return new FunctionType(returnType, paramTypes, isVarArg);
+    }
+}
+export class PointerType extends Type {
+    private pointeeTy: Type;
+    protected constructor(elementType: Type) {
+        super(TypeID.PointerTyID);
+        this.pointeeTy = elementType;
+    }
+    static get(elementType: Type): PointerType {
+        return new PointerType(elementType);
+    }
+    public getElementType(): Type {
+        return this.pointeeTy;
     }
 }
