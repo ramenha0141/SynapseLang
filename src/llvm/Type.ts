@@ -222,6 +222,17 @@ class Type {
     }
 }
 export default Type;
-class FunctionType {
-    
+export class FunctionType extends Type {
+    returnType: Type;
+    paramTypes: Type[];
+    isVarArg: boolean;
+    protected constructor(returnType: Type, paramTypes: Type[], isVarArg: boolean) {
+        super(TypeID.FunctionTyID);
+        this.returnType = returnType;
+        this.paramTypes = paramTypes;
+        this. isVarArg = isVarArg;
+    }
+    public static get(returnType: Type, paramTypes: Type[], isVarArg: boolean): FunctionType {
+        return new FunctionType(returnType, paramTypes, isVarArg);
+    }
 }
