@@ -1,8 +1,7 @@
 class Module {
-    constructor(MID: string) {
-        this.ModuleID = this.SourceFileName = MID;
+    constructor(moduleID: string) {
+        this.ModuleID = moduleID;
     }
     private ModuleID: string;
-    private SourceFileName: string;
 }
 export default Module;
