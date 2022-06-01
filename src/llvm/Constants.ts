@@ -8,6 +8,9 @@ export class Constant extends Value {
             default: throw new Error();
         }
     }
+    public isNullValue(): this is ConstantPointerNull {
+        return this instanceof ConstantPointerNull;
+    }
 }
 export class ConstantInt extends Constant {
     private Val: number;
@@ -24,6 +27,16 @@ export class ConstantInt extends Constant {
     }
     static getFalse(): ConstantInt {
         return new ConstantInt(Type.getInt1Ty(), 0);
+    }
+}
+export class ConstantFP extends Constant {
+    private Val: number;
+    protected constructor(Ty: Type, V: number) {
+        super(Ty);
+        this.Val = V;
+    }
+    static get(type: Type, value: number): ConstantFP {
+        return new ConstantFP(type, value);
     }
 }
 export class ConstantPointerNull extends Constant {
