@@ -1,11 +1,12 @@
 import BasicBlock from './BasicBlock';
 
 class IRBuilder {
-    protected BB?: BasicBlock;
-    constructor()
-    constructor(BB: BasicBlock)
-    constructor(BB?: BasicBlock) {
-        if (BB) this.BB = BB;
+    protected basicBlock?: BasicBlock;
+    constructor(basicBlock?: BasicBlock) {
+        if (basicBlock) this.basicBlock = basicBlock;
+    }
+    public setInsertPoint(basicBlock: BasicBlock) {
+        this.basicBlock = basicBlock;
     }
 }
 export default IRBuilder;

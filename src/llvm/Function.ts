@@ -15,7 +15,7 @@ class Function extends Value {
         M.getFunctionList().push(this);
         const paramTypes = Ty.paramTypes;
         this.args = paramTypes.map((paramType, i) => {
-            return new Argument(paramType, this, '%' + this.count++, i);
+            return new Argument(paramType, this, this.createIdentifier(), i);
         });
     }
     static Create(funcType: FunctionType, name: string, module: Module): Function {
@@ -29,6 +29,10 @@ class Function extends Value {
     }
     public addBasicBlock(basicBlock: BasicBlock) {
         this.basicBlocks.push(basicBlock);
+    }
+    public createIdentifier(label?: boolean): any {
+        if (label) return (this.count++).toString();
+        return '%' + this.count++;
     }
 }
 export default Function;

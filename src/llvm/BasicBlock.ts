@@ -4,11 +4,15 @@ import Type from './Type';
 import Value from './Value';
 
 class BasicBlock extends Value {
-    protected constructor(name?: string, parent: Function) {
+    private parent: Function;
+    protected constructor(parent: Function, name?: string) {
         super(Type.getLabelTy());
-        this.setName(name || '%' + parent.);
-
+        this.parent = parent;
+        this.setName(name || parent.createIdentifier(true));
     }
     private instructions: Instruction[] = [];
+    public addInstruction(instruction: Instruction) {
+        this.instructions.push(instruction);
+    }
 }
 export default BasicBlock;
