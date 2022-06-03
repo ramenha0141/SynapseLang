@@ -31,11 +31,6 @@ export class BrInst extends Instruction {
         }
     }
 }
-class BinaryInst extends Instruction {
-    constructor(private type: string, private lhs: Value, private rhs: Value) {
-        super(lhs.getType());
-    }
-}
 export class AddInst extends Instruction {
     constructor(private lhs: Value, private rhs: Value) {
         super(lhs.getType());
