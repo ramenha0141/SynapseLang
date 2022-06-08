@@ -1,4 +1,4 @@
-import llvm from 'llvm-bindings';
+import * as llvm from '../llvm';
 
 import Scope, { Symbols } from './Scope';
 import * as Expression from './Expression';

@@ -1,4 +1,4 @@
-import llvm from 'llvm-bindings';
+import * as llvm from '../llvm';
 
 import Scope, { Symbols } from './Scope';
 import Condition from './Condition';
@@ -55,9 +55,9 @@ export const AssignmentExpression = (context: AssignmentExpressionContext, scope
 export const TernaryExpression = (context: TernaryExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
     const functionContext = scope.getFunctionContext();
     const condition = Condition(context.condition, scope);
-    const thenBlock = llvm.BasicBlock.Create(llvmContext, undefined, functionContext);
-    const elseBlock = llvm.BasicBlock.Create(llvmContext, undefined, functionContext);
-    const endBlock = llvm.BasicBlock.Create(llvmContext, undefined, functionContext);
+    const thenBlock = llvm.BasicBlock.Create(functionContext);
+    const elseBlock = llvm.BasicBlock.Create(functionContext);
+    const endBlock = llvm.BasicBlock.Create(functionContext);
     builder.CreateCondBr(condition, thenBlock, elseBlock);
     builder.SetInsertPoint(thenBlock);
     const thenExpression = Expression(context.then, scope, expectedType);
@@ -243,9 +243,9 @@ export const UnaryMinusExpression = (context: UnaryMinusExpressionContext, scope
     const expression = Expression(context.expression, scope, expectedType);
     const type = expression.getType();
     if (type.isIntegerTy()) {
-        return builder.CreateSub(llvm.ConstantInt.get(llvmContext, 0), expression);
+        return builder.CreateSub(llvm.ConstantInt.get(type, 0), expression);
     } else if (type.isFloatingPointTy()) {
-        return builder.CreateFSub(llvm.ConstantFP.get(llvmContext, 0), expression);
+        return builder.CreateFSub(llvm.ConstantFP.get(type, 0), expression);
     } else {
         throw new Error();
     }
@@ -254,14 +254,14 @@ export const BitNotExpression = (context: BitNotExpressionContext, scope: Scope,
     const expression = Expression(context.expression, scope, expectedType);
     const type = expression.getType();
     if (type.isIntegerTy()) {
-        return builder.CreateXor(expression, llvm.ConstantInt.get(llvmContext, -1));
+        return builder.CreateXor(expression, llvm.ConstantInt.get(type, -1));
     } else {
         throw new Error();
     }
 };
 export const NotExpression = (context: NotExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
     const condition = Condition(context.expression, scope);
-    return builder.CreateICmpNE(condition, llvm.ConstantInt.getFalse(llvmContext));
+    return builder.CreateICmpNE(condition, llvm.ConstantInt.getFalse());
 };
 //@ts-expect-error
 export const NewExpression = (context: NewExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
@@ -278,9 +278,9 @@ export const SizeofExpression = (context: SizeofExpressionContext, scope: Scope,
     const type = scope.getType(context.typeAnnotation.identifier.identifiers);
     const primitiveSize = type.getPrimitiveSizeInBits();
     if (primitiveSize) {
-        return llvm.ConstantInt.get(llvmContext, Math.ceil(primitiveSize / 4));
+        return llvm.ConstantInt.get(type, Math.ceil(primitiveSize / 4));
     } else if (isPointerTy(type)) {
-        const ptr = builder.CreateGEP(type, llvm.ConstantPointerNull.get(type), [llvm.ConstantInt.get(llvmContext, 1)]);
+        const ptr = builder.CreateGEP(type, llvm.ConstantPointerNull.get(type), [llvm.ConstantInt.get(llvm.Type.getInt32Ty(), 1)]);
         return builder.CreatePtrToInt(ptr, expectedType ?? builder.getInt32Ty());
     } else {
         throw new Error();
@@ -291,11 +291,11 @@ export const PreIncrementExpression = (context: PreIncrementExpressionContext, s
     const type = variable.getType().getPointerElementType();
     const value = builder.CreateLoad(type, variable);
     if (type.isIntegerTy()) {
-        const expression = builder.CreateAdd(value, llvm.ConstantInt.get(llvmContext, 1));
+        const expression = builder.CreateAdd(value, llvm.ConstantInt.get(type, 1));
         builder.CreateStore(variable, expression);
         return expression;
     } else if (type.isFloatingPointTy()) {
-        const expression = builder.CreateFAdd(value, llvm.ConstantInt.get(llvmContext, 1));
+        const expression = builder.CreateFAdd(value, llvm.ConstantInt.get(type, 1));
         builder.CreateStore(variable, expression);
         return expression;
     } else {
@@ -307,11 +307,11 @@ export const PreDecrementExpression = (context: PreDecrementExpressionContext, s
     const type = variable.getType().getPointerElementType();
     const value = builder.CreateLoad(type, variable);
     if (type.isIntegerTy()) {
-        const expression = builder.CreateSub(value, llvm.ConstantInt.get(llvmContext, 1));
+        const expression = builder.CreateSub(value, llvm.ConstantInt.get(type, 1));
         builder.CreateStore(variable, expression);
         return expression;
     } else if (type.isFloatingPointTy()) {
-        const expression = builder.CreateFSub(value, llvm.ConstantInt.get(llvmContext, 1));
+        const expression = builder.CreateFSub(value, llvm.ConstantInt.get(type, 1));
         builder.CreateStore(variable, expression);
         return expression;
     } else {
@@ -323,11 +323,11 @@ export const PostIncrementExpression = (context: PostIncrementExpressionContext,
     const type = variable.getType().getPointerElementType();
     const value = builder.CreateLoad(type, variable);
     if (type.isIntegerTy()) {
-        const expression = builder.CreateAdd(value, llvm.ConstantInt.get(llvmContext, 1));
+        const expression = builder.CreateAdd(value, llvm.ConstantInt.get(type, 1));
         builder.CreateStore(variable, expression);
         return value;
     } else if (type.isFloatingPointTy()) {
-        const expression = builder.CreateFAdd(value, llvm.ConstantInt.get(llvmContext, 1));
+        const expression = builder.CreateFAdd(value, llvm.ConstantInt.get(type, 1));
         builder.CreateStore(variable, expression);
         return value;
     } else {
@@ -339,11 +339,11 @@ export const PostDecrementExpression = (context: PostDecrementExpressionContext,
     const type = variable.getType().getPointerElementType();
     const value = builder.CreateLoad(type, variable);
     if (type.isIntegerTy()) {
-        const expression = builder.CreateSub(value, llvm.ConstantInt.get(llvmContext, 1));
+        const expression = builder.CreateSub(value, llvm.ConstantInt.get(type, 1));
         builder.CreateStore(variable, expression);
         return value;
     } else if (type.isFloatingPointTy()) {
-        const expression = builder.CreateFSub(value, llvm.ConstantInt.get(llvmContext, 1));
+        const expression = builder.CreateFSub(value, llvm.ConstantInt.get(type, 1));
         builder.CreateStore(variable, expression);
         return value;
     } else {

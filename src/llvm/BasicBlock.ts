@@ -10,6 +10,9 @@ class BasicBlock extends Value {
         this.parent = parent;
         this.setName(name || parent.createIdentifier(true));
     }
+    static Create(parent: Function, name?: string) {
+        return new BasicBlock(parent, name);
+    }
     private instructions: Instruction[] = [];
     public addInstruction(instruction: Instruction) {
         this.instructions.push(instruction);

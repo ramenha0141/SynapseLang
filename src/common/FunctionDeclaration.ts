@@ -1,4 +1,4 @@
-import llvm from 'llvm-bindings';
+import * as llvm from '../llvm';
 
 import Module from './Module';
 import Scope from './Scope';
@@ -10,9 +10,9 @@ class FunctionDeclaration extends Scope {
         this.context = context;
         const returnType = context.typeAnnotation
             ? context.typeAnnotation.isVoid
-                ? llvm.Type.getVoidTy(llvmContext)
+                ? llvm.Type.getVoidTy()
                 : module.getType(context.typeAnnotation.identifier.identifiers)
-            : llvm.Type.getVoidTy(llvmContext);
+            : llvm.Type.getVoidTy();
         const parameterTypes = context.parameterList.map((parameter) => {
             if (parameter.typeAnnotation.isVoid) throw new Error();
             return module.getType(parameter.typeAnnotation.identifier.identifiers);
@@ -20,10 +20,10 @@ class FunctionDeclaration extends Scope {
         const functionType = llvm.FunctionType.get(returnType, parameterTypes, false);
         module.import(
             context.identifier,
-            this.llvmFunction = llvm.Function.Create(functionType, llvm.Function.LinkageTypes.PrivateLinkage, `${module.id}::${context.identifier}`, llvmModule)
+            this.llvmFunction = llvm.Function.Create(functionType, `${module.id}::${context.identifier}`, llvmModule)
         );
         module.setFunctionContext(this.llvmFunction);
-        const basicBlock = this.basicBlock = llvm.BasicBlock.Create(llvmContext, undefined, this.llvmFunction);
+        const basicBlock = this.basicBlock = llvm.BasicBlock.Create(this.llvmFunction);
         builder.SetInsertPoint(basicBlock);
         for (let i = 0; i < context.parameterList.length; i++) {
             const variable = builder.CreateAlloca(parameterTypes[i]);

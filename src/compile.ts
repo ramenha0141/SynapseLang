@@ -3,15 +3,14 @@ import path from 'path';
 import parser from './parser';
 import module_resolver from './module_resolver';
 import Module, { ModuleMap } from './common/Module';
-import llvm from 'llvm-bindings';
+import * as llvm from './llvm';
 const compile = (options: CompilerOptions) => {
     const entryPath = options.filePath ?? 'index.syn';
     const rootDir = options.rootDir ?? './';
     const builtinsPath = '';
     const moduleMap: ModuleMap = {};
-    global.llvmContext = new llvm.LLVMContext();
-    global.builder = new llvm.IRBuilder(llvmContext);
-    global.llvmModule = new llvm.Module(entryPath, llvmContext);
+    global.builder = new llvm.IRBuilder();
+    global.llvmModule = new llvm.Module(entryPath);
     const loadModule = (modulePath: string, isBuiltin?: boolean) => {
         const source = fs.readFileSync(
             isBuiltin
@@ -20,7 +19,7 @@ const compile = (options: CompilerOptions) => {
             'utf-8'
         );
         const moduleContext = parser(source);
-        const module = new Module(modulePath, moduleContext.declarations, { int: llvm.Type.getInt32Ty(llvmContext) });
+        const module = new Module(modulePath, moduleContext.declarations, { int: llvm.Type.getInt32Ty() });
         for (const importContext of moduleContext.importDeclarations) {
             switch (importContext.type) {
                 case 'ImportDefineDeclaration': {

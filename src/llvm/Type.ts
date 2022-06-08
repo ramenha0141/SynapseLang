@@ -105,7 +105,7 @@ class Type {
     public isArrayTy() {
         return this.ID === TypeID.ArrayTyID;
     }
-    public isPointerTy() {
+    public isPointerTy(): this is PointerType {
         return this.ID === TypeID.PointerTyID;
     }
     public isVectorTy() {
@@ -129,6 +129,10 @@ class Type {
     }
     public getPointerTo() {
         return PointerType.get(this);
+    }
+    public getPointerElementType(): Type {
+        if (!this.isPointerTy()) throw new Error();
+        return this.getElementType();
     }
 
     static getPrimitiveType(ID: TypeID): Type {

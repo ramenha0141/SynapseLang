@@ -1,4 +1,4 @@
-import llvm from 'llvm-bindings';
+import * as llvm from '../llvm';
 import Module from './Module';
 
 export interface Symbols {
