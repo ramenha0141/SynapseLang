@@ -127,6 +127,9 @@ class Type {
             default: return 0;
         }
     }
+    public getPointerTo() {
+        return PointerType.get(this);
+    }
 
     static getPrimitiveType(ID: TypeID): Type {
         switch (ID) {

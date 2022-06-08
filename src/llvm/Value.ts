@@ -15,5 +15,11 @@ class Value {
     public getName(): string {
         return this.name;
     }
+    public print(): string {
+        return ``;
+    }
+    public toStringNoType(): string {
+        return ``;
+    }
 }
 export default Value;

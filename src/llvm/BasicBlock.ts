@@ -14,5 +14,8 @@ class BasicBlock extends Value {
     public addInstruction(instruction: Instruction) {
         this.instructions.push(instruction);
     }
+    public getParent() {
+        return this.parent;
+    }
 }
 export default BasicBlock;
