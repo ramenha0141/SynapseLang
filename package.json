@@ -5,7 +5,7 @@
     "main": "dist/index.js",
     "type": "module",
     "scripts": {
-        "start": "node ./dist/index.js"
+        "synac": "node --experimental-specifier-resolution=node ./dist/synac"
     },
     "author": "",
     "license": "ISC",
