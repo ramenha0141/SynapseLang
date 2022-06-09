@@ -5,6 +5,7 @@ import Value from './Value';
 
 class BasicBlock extends Value {
     private parent: Function;
+    private instructions: Instruction[] = [];
     protected constructor(parent: Function, name?: string) {
         super(Type.getLabelTy());
         this.parent = parent;
@@ -14,12 +15,14 @@ class BasicBlock extends Value {
     static Create(parent: Function, name?: string) {
         return new BasicBlock(parent, name);
     }
-    private instructions: Instruction[] = [];
     public addInstruction(instruction: Instruction) {
         this.instructions.push(instruction);
     }
     public getParent() {
         return this.parent;
+    }
+    public print(): string {
+        return `${this.name}:\n${this.instructions.map(instruction => `    ${instruction.print()}`)}`;
     }
 }
 export default BasicBlock;

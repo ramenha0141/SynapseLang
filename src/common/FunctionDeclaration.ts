@@ -20,7 +20,7 @@ class FunctionDeclaration extends Scope {
         const functionType = llvm.FunctionType.get(returnType, parameterTypes, false);
         module.import(
             context.identifier,
-            this.llvmFunction = llvm.Function.Create(functionType, `${module.id}::${context.identifier}`, llvmModule)
+            this.llvmFunction = llvm.Function.Create(functionType, `"${module.id}::${context.identifier}"`, llvmModule)
         );
         module.setFunctionContext(this.llvmFunction);
         const basicBlock = this.basicBlock = llvm.BasicBlock.Create(this.llvmFunction);

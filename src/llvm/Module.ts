@@ -6,8 +6,11 @@ class Module {
     constructor(moduleID: string) {
         this.moduleID = moduleID;
     }
-    public getFunctionList(): Function[] {
-        return this.functionList;
+    public addFunction(func: Function) {
+        this.functionList.push(func);
+    }
+    public print(): string {
+        return `source_filename = "${this.moduleID}"\n${this.functionList.map(func => func.print()).join('\n')}`;
     }
 }
 export default Module;

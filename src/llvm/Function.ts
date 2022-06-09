@@ -5,14 +5,13 @@ import Argument from './Argument';
 import BasicBlock from './BasicBlock';
 
 class Function extends Value {
-    protected name: string;
     private args: Argument[];
     private count: number = 0;
     private basicBlocks: BasicBlock[] = [];
     protected constructor(type: FunctionType, name: string, module: Module) {
         super(type);
-        this.name = '@' + name;
-        module.getFunctionList().push(this);
+        this.setName('@' + name);
+        module.addFunction(this);
         const paramTypes = type.paramTypes;
         this.args = paramTypes.map((paramType, i) => {
             return new Argument(paramType, this, this.createIdentifier(), i);
@@ -33,6 +32,9 @@ class Function extends Value {
     public createIdentifier(label?: boolean): any {
         if (label) return (this.count++).toString();
         return '%' + this.count++;
+    }
+    public print(): string {
+        return `define ${(this.getType() as FunctionType).returnType} ${this.name}(${this.args.join(', ')}) {\n${this.basicBlocks.map(basicBlock => basicBlock.print()).join('\n')}\n}`;
     }
 }
 export default Function;

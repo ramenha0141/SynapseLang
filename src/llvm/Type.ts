@@ -135,6 +135,26 @@ class Type {
         return this.getElementType();
     }
 
+    public toString(): string {
+        switch (this.ID) {
+            case TypeID.HalfTyID: return 'half';
+            case TypeID.BFloatTyID: return 'bfloat';
+            case TypeID.FloatTyID: return 'float';
+            case TypeID.DoubleTyID: return 'double';
+            case TypeID.X86_FP80TyID: return 'x86_fp80';
+            case TypeID.FP128TyID: return 'fp128';
+            case TypeID.PPC_FP128TyID: return 'ppc_fp128';
+            case TypeID.VoidTyID: return 'void';
+            case TypeID.LabelTyID: return 'label';
+            case TypeID.MetadataTyID: return 'metadata';
+            case TypeID.X86_MMXTyID: return 'x86_mmx';
+            case TypeID.X86_AMXTyID: return 'x86_amx';
+            case TypeID.TokenTyID: return 'token';
+            case TypeID.IntegerTyID: return `i${this.getBitWidth()}`;
+            default: throw new Error();
+        }
+    }
+
     static getPrimitiveType(ID: TypeID): Type {
         switch (ID) {
             case TypeID.VoidTyID: return this.getVoidTy();
@@ -249,5 +269,8 @@ export class PointerType extends Type {
     }
     public getElementType(): Type {
         return this.pointeeTy;
+    }
+    public toString(): string {
+        return `${this.pointeeTy}*`;
     }
 }
