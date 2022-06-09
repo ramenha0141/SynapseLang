@@ -9,11 +9,11 @@ class Function extends Value {
     private args: Argument[];
     private count: number = 0;
     private basicBlocks: BasicBlock[] = [];
-    protected constructor(Ty: FunctionType, name: string, M: Module) {
-        super(Ty);
+    protected constructor(type: FunctionType, name: string, module: Module) {
+        super(type);
         this.name = '@' + name;
-        M.getFunctionList().push(this);
-        const paramTypes = Ty.paramTypes;
+        module.getFunctionList().push(this);
+        const paramTypes = type.paramTypes;
         this.args = paramTypes.map((paramType, i) => {
             return new Argument(paramType, this, this.createIdentifier(), i);
         });

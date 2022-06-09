@@ -34,7 +34,7 @@ export const VariableDeclaration = (context: VariableDeclarationContext, scope: 
     const expression = context.expression && Expression.Expression(context.expression, scope, typeAnnotation);
     // Type conflict between type annotation and expression
     if (expression && typeAnnotation && expression?.getType().getTypeID() === typeAnnotation.getTypeID()) throw new Error();
-    const variable = builder.CreateAlloca(typeAnnotation ?? expression?.getType() ?? llvm.Type.getInt32Ty(llvmContext));
+    const variable = builder.CreateAlloca(typeAnnotation ?? expression?.getType() ?? llvm.Type.getInt32Ty());
     if (expression) builder.CreateStore(expression, variable);
 };
 export const ExpressionStatement = (context: ExpressionStatementContext, scope: Scope) => {
@@ -54,9 +54,9 @@ export const IfStatement = (context: IfStatementContext, scope: Scope) => {
     const functionContext = scope.getFunctionContext();
     const condition = Condition(context.condition, scope);
     if (context.else) {
-        const thenBlock = llvm.BasicBlock.Create(llvmContext, undefined, functionContext);
-        const elseBlock = llvm.BasicBlock.Create(llvmContext, undefined, functionContext);
-        const endBlock = llvm.BasicBlock.Create(llvmContext, undefined, functionContext);
+        const thenBlock = llvm.BasicBlock.Create(functionContext);
+        const elseBlock = llvm.BasicBlock.Create(functionContext);
+        const endBlock = llvm.BasicBlock.Create(functionContext);
         builder.CreateCondBr(condition, thenBlock, elseBlock);
         builder.SetInsertPoint(thenBlock);
         Statement(context.then, scope);
@@ -65,8 +65,8 @@ export const IfStatement = (context: IfStatementContext, scope: Scope) => {
         Statement(context.else, scope);
         builder.SetInsertPoint(endBlock);
     } else {
-        const thenBlock = llvm.BasicBlock.Create(llvmContext, undefined, functionContext);
-        const endBlock = llvm.BasicBlock.Create(llvmContext, undefined, functionContext);
+        const thenBlock = llvm.BasicBlock.Create(functionContext);
+        const endBlock = llvm.BasicBlock.Create(functionContext);
         builder.CreateCondBr(condition, thenBlock, endBlock);
         builder.SetInsertPoint(thenBlock);
         Statement(context.then, scope);
@@ -76,9 +76,9 @@ export const IfStatement = (context: IfStatementContext, scope: Scope) => {
 };
 export const WhileStatement = (context: WhileStatementContext, scope: Scope) => {
     const functionContext = scope.getFunctionContext();
-    const conditionBlock = llvm.BasicBlock.Create(llvmContext, undefined, functionContext);
-    const thenBlock = llvm.BasicBlock.Create(llvmContext, undefined, functionContext);
-    const endBlock = llvm.BasicBlock.Create(llvmContext, undefined, functionContext);
+    const conditionBlock = llvm.BasicBlock.Create(functionContext);
+    const thenBlock = llvm.BasicBlock.Create(functionContext);
+    const endBlock = llvm.BasicBlock.Create(functionContext);
     builder.CreateBr(conditionBlock);
     builder.SetInsertPoint(conditionBlock);
     const condition = Condition(context.condition, scope);
@@ -90,10 +90,10 @@ export const WhileStatement = (context: WhileStatementContext, scope: Scope) => 
 };
 export const ForNormalStatement = (context: ForNormalStatementContext, scope: Scope) => {
     const functionContext = scope.getFunctionContext();
-    const conditionBlock = llvm.BasicBlock.Create(llvmContext, undefined, functionContext);
-    const thenBlock = llvm.BasicBlock.Create(llvmContext, undefined, functionContext);
-    const finalBlock = llvm.BasicBlock.Create(llvmContext, undefined, functionContext);
-    const endBlock = llvm.BasicBlock.Create(llvmContext, undefined, functionContext);
+    const conditionBlock = llvm.BasicBlock.Create(functionContext);
+    const thenBlock = llvm.BasicBlock.Create(functionContext);
+    const finalBlock = llvm.BasicBlock.Create(functionContext);
+    const endBlock = llvm.BasicBlock.Create(functionContext);
     VariableDeclaration(context.initialization, scope);
     builder.CreateBr(conditionBlock);
     builder.SetInsertPoint(conditionBlock);

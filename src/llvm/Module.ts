@@ -1,13 +1,13 @@
 import Function from './Function';
 
 class Module {
+    private moduleID: string;
+    private functionList: Function[] = [];
     constructor(moduleID: string) {
-        this.ModuleID = moduleID;
+        this.moduleID = moduleID;
     }
-    private ModuleID: string;
-    private FunctionList: Function[] = [];
     public getFunctionList(): Function[] {
-        return this.FunctionList;
+        return this.functionList;
     }
 }
 export default Module;

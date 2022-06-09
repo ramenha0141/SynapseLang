@@ -9,8 +9,8 @@ const compile = (options: CompilerOptions) => {
     const rootDir = options.rootDir ?? './';
     const builtinsPath = '';
     const moduleMap: ModuleMap = {};
-    global.builder = new llvm.IRBuilder();
     global.llvmModule = new llvm.Module(entryPath);
+    global.builder = new llvm.IRBuilder();
     const loadModule = (modulePath: string, isBuiltin?: boolean) => {
         const source = fs.readFileSync(
             isBuiltin
@@ -53,6 +53,6 @@ const compile = (options: CompilerOptions) => {
         moduleMap[modulePath] = module;
     };
     loadModule(entryPath);
-    console.log(llvmModule.print());
+    console.dir(llvmModule, { depth: null });
 };
 export default compile;

@@ -1,2 +1,5 @@
-declare var llvmModule: llvm.Module;
-declare var builder: llvm.IRBuilder;
+import type { Module, IRBuilder } from '../llvm';
+declare global {
+    var llvmModule: Module;
+    var builder: IRBuilder;
+}

@@ -13,10 +13,10 @@ export class Constant extends Value {
     }
 }
 export class ConstantInt extends Constant {
-    private Val: number;
-    protected constructor(Ty: Type, V: number) {
-        super(Ty);
-        this.Val = V;
+    private value: number;
+    protected constructor(type: Type, value: number) {
+        super(type);
+        this.value = value;
     }
     static get(type: IntegerType, value: number): ConstantInt {
         if (value !== parseInt(value.toString())) throw new Error();
@@ -30,10 +30,10 @@ export class ConstantInt extends Constant {
     }
 }
 export class ConstantFP extends Constant {
-    private Val: number;
-    protected constructor(Ty: Type, V: number) {
-        super(Ty);
-        this.Val = V;
+    private value: number;
+    protected constructor(type: Type, value: number) {
+        super(type);
+        this.value = value;
     }
     static get(type: Type, value: number): ConstantFP {
         return new ConstantFP(type, value);

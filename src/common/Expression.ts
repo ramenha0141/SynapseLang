@@ -68,9 +68,7 @@ export const TernaryExpression = (context: TernaryExpressionContext, scope: Scop
     builder.SetInsertPoint(endBlock);
     // Type conflict between then expression and else expression
     if (thenExpression.getType().getTypeID() !== elseExpression.getType().getTypeID()) throw new Error();
-    const expression = builder.CreatePHI(thenExpression.getType(), 2);
-    expression.addIncoming(thenExpression, thenBlock);
-    expression.addIncoming(elseExpression, elseBlock);
+    const expression = builder.CreatePHI(thenExpression.getType(), [[thenExpression, thenBlock], [elseExpression, elseBlock]]);
     return expression;
 };
 export const LogicalOrExpression = (context: LogicalOrExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
@@ -199,6 +197,7 @@ export const AssertionExpression = (context: AssertionExpressionContext, scope: 
     const expression = Expression(context.expression, scope);
     const fromType = expression.getType();
     const toType = scope.getType(context.typeAnnotation.identifier.identifiers);
+    if (expression.getType().getTypeID() === toType.getTypeID()) throw new Error();
     if (fromType.isIntegerTy()) {
         if (toType.isIntegerTy()) {
             if (fromType.getPrimitiveSizeInBits() > toType.getPrimitiveSizeInBits()) {
@@ -219,7 +218,11 @@ export const AssertionExpression = (context: AssertionExpressionContext, scope: 
         if (toType.isIntegerTy()) {
             return builder.CreateFPToSI(expression, toType);
         } else if (toType.isFloatingPointTy()) {
-            return builder.CreateFPCast(expression, toType);
+            if (expression.getType().getPrimitiveSizeInBits() > toType.getPrimitiveSizeInBits()) {
+                return builder.CreateFPTrunc(expression, toType);
+            } else {
+                return builder.CreateFPExt(expression, toType);
+            }
         } else {
             throw new Error();
         }
@@ -281,7 +284,7 @@ export const SizeofExpression = (context: SizeofExpressionContext, scope: Scope,
         return llvm.ConstantInt.get(type, Math.ceil(primitiveSize / 4));
     } else if (isPointerTy(type)) {
         const ptr = builder.CreateGEP(type, llvm.ConstantPointerNull.get(type), [llvm.ConstantInt.get(llvm.Type.getInt32Ty(), 1)]);
-        return builder.CreatePtrToInt(ptr, expectedType ?? builder.getInt32Ty());
+        return builder.CreatePtrToInt(ptr, expectedType ?? llvm.Type.getInt32Ty());
     } else {
         throw new Error();
     }

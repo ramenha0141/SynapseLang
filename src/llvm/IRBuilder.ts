@@ -10,7 +10,7 @@ class IRBuilder {
     constructor(basicBlock?: BasicBlock) {
         if (basicBlock) this.basicBlock = basicBlock;
     }
-    public setInsertPoint(basicBlock: BasicBlock) {
+    public SetInsertPoint(basicBlock: BasicBlock) {
         this.basicBlock = basicBlock;
     }
     private insert(instruction: Instruction) {
