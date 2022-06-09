@@ -5,9 +5,20 @@ import Condition from './Condition';
 
 const Reference = (context: ExpressionContext, scope: Scope): llvm.Value => {
     switch (context.type) {
+        case 'IndexExpression': return IndexReference(context, scope);
+        case 'MemberExpression': return MemberReference(context, scope);
         case 'Identifier': return IdentifierReference(context, scope);
         default: throw new Error();
     }
+};
+const IndexReference = (context: IndexExpressionContext, scope: Scope): llvm.Value => {
+    const reference = Reference(context.expression, scope);
+    const index = Expression(context.index, scope, llvm.Type.getInt32Ty());
+    return builder.CreateGEP(reference.getType().getPointerElementType(), reference, [llvm.ConstantInt.get(llvm.Type.getInt32Ty(), 0), index]);
+};
+//@ts-expect-error
+const MemberReference = (context: MemberExpressionContext, scope: Scope): llvm.Value => {
+    const reference = Reference(context.expression, scope);
 };
 const IdentifierReference = (context: IdentifierContext, scope: Scope): llvm.Value => {
     return scope.getVariable(context.identifiers);
@@ -38,6 +49,9 @@ export const Expression = (context: ExpressionContext, scope: Scope, expectedTyp
         case 'PreDecrementExpression': return PreDecrementExpression(context, scope, expectedType);
         case 'PostIncrementExpression': return PostIncrementExpression(context, scope, expectedType);
         case 'PostDecrementExpression': return PostDecrementExpression(context, scope, expectedType);
+        case 'IndexExpression': return IndexExpression(context, scope, expectedType);
+        case 'MemberExpression': return MemberExpression(context, scope, expectedType);
+        case 'CallExpression': return CallExpression(context, scope, expectedType);
         default: throw new Error();
     }
 };
@@ -352,4 +366,18 @@ export const PostDecrementExpression = (context: PostDecrementExpressionContext,
     } else {
         throw new Error();
     }
+};
+export const IndexExpression = (context: IndexExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
+    const variable = IndexReference(context, scope);
+    return builder.CreateLoad(variable.getType().getPointerElementType(), variable);
+};
+export const MemberExpression = (context: MemberExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
+    const variable = MemberReference(context, scope);
+    return builder.CreateLoad(variable.getType().getPointerElementType(), variable);
+};
+export const CallExpression = (context: CallExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
+    const func = Reference(context.expression, scope);
+    if (!(func instanceof llvm.Function)) throw new Error();
+    const args = context.arguments.items.map(arg => Expression(arg, scope));
+    return builder.CreateCall(func, args);
 };
