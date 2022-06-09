@@ -22,7 +22,7 @@ class BasicBlock extends Value {
         return this.parent;
     }
     public print(): string {
-        return `${this.name}:\n${this.instructions.map(instruction => `    ${instruction.print()}`)}`;
+        return `${this.name}:\n${this.instructions.map(instruction => `    ${instruction.print()}`).join('\n')}`;
     }
 }
 export default BasicBlock;

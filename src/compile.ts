@@ -4,6 +4,7 @@ import parser from './parser';
 import module_resolver from './module_resolver';
 import Module, { ModuleMap } from './common/Module';
 import * as llvm from './llvm';
+import create_main from './create_main';
 const compile = (options: CompilerOptions) => {
     const entryPath = options.filePath ?? 'index.syn';
     const rootDir = options.rootDir ?? './';
@@ -53,6 +54,7 @@ const compile = (options: CompilerOptions) => {
         moduleMap[modulePath] = module;
     };
     loadModule(entryPath);
+    create_main(moduleMap[entryPath])
     console.log(llvmModule.print());
 };
 export default compile;

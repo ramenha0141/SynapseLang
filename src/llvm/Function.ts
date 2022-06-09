@@ -5,6 +5,7 @@ import Argument from './Argument';
 import BasicBlock from './BasicBlock';
 
 class Function extends Value {
+    declare protected Ty: FunctionType;
     private args: Argument[];
     private count: number = 0;
     private basicBlocks: BasicBlock[] = [];
@@ -12,7 +13,7 @@ class Function extends Value {
         super(type);
         this.setName('@' + name);
         module.addFunction(this);
-        const paramTypes = type.paramTypes;
+        const paramTypes = type.getParamTypes();
         this.args = paramTypes.map((paramType, i) => {
             return new Argument(paramType, this, this.createIdentifier(), i);
         });
@@ -24,7 +25,7 @@ class Function extends Value {
         return this.args[i];
     }
     public getReturnType(): Type {
-        return (this.getType() as FunctionType).returnType;
+        return this.Ty.getReturnType();
     }
     public addBasicBlock(basicBlock: BasicBlock) {
         this.basicBlocks.push(basicBlock);
@@ -34,7 +35,7 @@ class Function extends Value {
         return '%' + this.count++;
     }
     public print(): string {
-        return `define ${(this.getType() as FunctionType).returnType} ${this.name}(${this.args.join(', ')}) {\n${this.basicBlocks.map(basicBlock => basicBlock.print()).join('\n')}\n}`;
+        return `define ${this.Ty.getReturnType()} ${this.name}(${this.args.join(', ')}) {\n${this.basicBlocks.map(basicBlock => basicBlock.print()).join('\n')}\n}`;
     }
 }
 export default Function;

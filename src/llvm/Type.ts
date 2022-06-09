@@ -245,9 +245,9 @@ export class IntegerType extends Type {
     }
 }
 export class FunctionType extends Type {
-    returnType: Type;
-    paramTypes: Type[];
-    isVarArg: boolean;
+    private returnType: Type;
+    private paramTypes: Type[];
+    private isVarArg: boolean;
     protected constructor(returnType: Type, paramTypes: Type[], isVarArg: boolean) {
         super(TypeID.FunctionTyID);
         this.returnType = returnType;
@@ -256,6 +256,19 @@ export class FunctionType extends Type {
     }
     public static get(returnType: Type, paramTypes: Type[], isVarArg: boolean): FunctionType {
         return new FunctionType(returnType, paramTypes, isVarArg);
+    }
+    public getReturnType() {
+        return this.returnType;
+    }
+    public getParamTypes() {
+        return this.paramTypes;
+    }
+    public toString(): string {
+        if (this.isVarArg) {
+            return `(${this.paramTypes.join(', ')}) => ${this.returnType}`;
+        } else {
+            return this.returnType.toString();
+        }
     }
 }
 export class PointerType extends Type {
