@@ -1,3 +1,5 @@
+import path from 'path';
+
 const parse_parameter = (argv: string[]): CompilerOptions => {
     const parameter: CompilerOptions = {};
     while (argv.length) {
@@ -25,6 +27,7 @@ const parse_parameter = (argv: string[]): CompilerOptions => {
             }
             default: {
                 parameter.filePath = arg;
+                if (!path.extname(arg ?? '')) parameter.filePath += '.syn';
             }
         }
     }
