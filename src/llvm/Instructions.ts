@@ -30,12 +30,12 @@ export class BrInst extends Instruction {
     constructor(condition: Value, thenBasicBlock: BasicBlock, elseBasicBlock: BasicBlock)
     constructor(...args: any[]) {
         super();
-        if (args[0] instanceof Value) {
+        if (args[0] instanceof BasicBlock) {
+            this.distBasicBlock = args[0];
+        } else {
             this.condition = args[0];
             this.thenBasicBlock = args[1];
             this.elseBasicBlock = args[2];
-        } else {
-            this.distBasicBlock = args[0];
         }
     }
     print(): string {

@@ -36,6 +36,7 @@ export const VariableDeclaration = (context: VariableDeclarationContext, scope: 
     if (expression && typeAnnotation && expression?.getType().getTypeID() === typeAnnotation.getTypeID()) throw new Error();
     const variable = builder.CreateAlloca(typeAnnotation ?? expression?.getType() ?? llvm.Type.getInt32Ty());
     if (expression) builder.CreateStore(expression, variable);
+    scope.import(context.identifier, variable);
 };
 export const ExpressionStatement = (context: ExpressionStatementContext, scope: Scope) => {
     Expression.Expression(context.expression, scope);
