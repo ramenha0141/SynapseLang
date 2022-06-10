@@ -1,6 +1,6 @@
 import BasicBlock from './BasicBlock';
 import Function from './Function';
-import Type, { PointerType } from './Type';
+import Type, { FunctionType, PointerType } from './Type';
 import Value from './Value';
 
 class Instruction extends Value {
@@ -18,7 +18,7 @@ export class RetInst extends Instruction {
     }
     print(): string {
         if (this.value) return `ret ${this.value}`;
-        return `ret`;
+        return `ret void`;
     }
 }
 export class BrInst extends Instruction {
@@ -290,6 +290,7 @@ export class CallInst extends Instruction {
         super(callee.getReturnType());
     }
     print(): string {
+        if (this.callee.getType().getReturnType().isVoidTy()) return `call ${this.callee}(${this.args.join(', ')})`;
         return `${this.getName()} = call ${this.callee}(${this.args.join(', ')})`;
     }
 }

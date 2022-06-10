@@ -1,4 +1,4 @@
 function main() {
-    let a: int;
-    for (let i: int; i < a; i++) i;
+    a();
 }
+function a() {}

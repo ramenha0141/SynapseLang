@@ -392,7 +392,7 @@ class IRBuilder {
     }
     CreateCall(callee: Function, args: Value[]) {
         const instruction = new Instructions.CallInst(callee, args);
-        this.setName(instruction);
+        if (!callee.getType().getReturnType().isVoidTy()) this.setName(instruction);
         this.insert(instruction);
         return instruction;
     }

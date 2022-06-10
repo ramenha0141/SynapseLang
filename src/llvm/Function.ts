@@ -21,6 +21,9 @@ class Function extends Value {
     static Create(funcType: FunctionType, name: string, module: Module): Function {
         return new Function(funcType, name, module);
     }
+    public getType(): FunctionType {
+        return this.Ty;
+    }
     public getArg(i: number): Argument {
         return this.args[i];
     }
