@@ -187,7 +187,7 @@ export class GEPInst extends Instruction {
         super(type);
     }
     print(): string {
-        return `${this.getName()} = getelementptr ${this.type}, ${this.pointer}, ${this.indexList.join(', ')}`;
+        return `${this.getName()} = getelementptr ${this.pointer.getType().getPointerElementType()}, ${this.pointer}, ${this.indexList.join(', ')}`;
     }
 }
 class ConversionInst extends Instruction {

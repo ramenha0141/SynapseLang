@@ -1,10 +1,14 @@
+import crypto from 'crypto';
 import BasicBlock from './BasicBlock';
 import Instruction, * as Instructions from './Instructions';
 import type { PHIPair } from './Instructions';
 import Type from './Type';
 import Value from './Value';
 import Function from './Function';
+import GlobalVariable from './GlobalVariable';
+import { ConstantString } from './Constants';
 
+const hash = crypto.createHash('sha256');
 class IRBuilder {
     private basicBlock?: BasicBlock;
     constructor(basicBlock?: BasicBlock) {
@@ -20,6 +24,16 @@ class IRBuilder {
     private setName(instruction: Instruction) {
         if (!this.basicBlock) throw new Error();
         instruction.setName(this.basicBlock.getParent().createIdentifier());
+    }
+    CreateGlobalString(str: string, name?: string): GlobalVariable {
+        if (!name) {
+            hash.update(str);
+            name = `"${hash.digest('base64')}"`;
+        }
+        const string = ConstantString.get(str);
+        const variable =  new GlobalVariable(string.getType(), true, true, ConstantString.get(str), name);
+        llvmModule.addGlobalVariable(variable);
+        return variable;
     }
     CreateRetVoid() {
         this.insert(new Instructions.RetInst());

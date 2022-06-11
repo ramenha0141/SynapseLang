@@ -287,3 +287,20 @@ export class PointerType extends Type {
         return `${this.pointeeTy}*`;
     }
 }
+export class ArrayType extends Type {
+    protected constructor(private elementType: Type, private numberOfElements: number) {
+        super(TypeID.ArrayTyID);
+    }
+    static get(elementType: Type, numberOfElements: number): ArrayType {
+        return new ArrayType(elementType, numberOfElements);
+    }
+    public getElementType(): Type {
+        return this.elementType;
+    }
+    public getNumberOfElements(): number {
+        return this.numberOfElements;
+    }
+    public toString(): string {
+        return `[${this.numberOfElements} x ${this.elementType}]`;
+    }
+}

@@ -411,9 +411,10 @@ export const BooleanLiteral = (context: BooleanLiteralContext, scope: Scope, exp
         ? llvm.ConstantInt.getTrue(expectedType ?? llvm.Type.getInt1Ty())
         : llvm.ConstantInt.getFalse(expectedType ?? llvm.Type.getInt1Ty());
 };
-//@ts-expect-error
 export const StringLiteral = (context: StringLiteralContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
-
+    const variable = builder.CreateGlobalString(context.text);
+    const i32 = llvm.Type.getInt32Ty();
+    return builder.CreateGEP(llvm.Type.getInt8Ty().getPointerTo(), variable, [llvm.ConstantInt.get(i32, 0), llvm.ConstantInt.get(i32, 0)]);
 };
 export const NumberLiteral = (context: NumberLiteralContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
     if (expectedType) {

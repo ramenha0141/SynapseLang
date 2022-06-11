@@ -1,4 +1,4 @@
-import Type, { IntegerType, PointerType, TypeID } from './Type';
+import Type, { ArrayType, IntegerType, PointerType, TypeID } from './Type';
 import Value from './Value';
 
 export class Constant extends Value {
@@ -62,5 +62,23 @@ export class ConstantPointerNull extends Constant {
     }
     public toString(): string {
         return `${this.Ty} null`;
+    }
+}
+const textEncoder = new TextEncoder();
+export class ConstantString extends Constant {
+    private value: string;
+    protected constructor(type: Type, value: string) {
+        super(type);
+        this.value = value;
+    }
+    static get(str: string): ConstantString {
+        const stringUInt8Array = textEncoder.encode(str);
+        const stringArray = [...stringUInt8Array].map((decimal) => `\\${decimal.toString(16)}`);
+        stringArray.push('\\00');
+        const string = stringArray.join('');
+        return new ConstantString(ArrayType.get(Type.getInt8Ty(), stringArray.length), string);
+    }
+    public toString(): string {
+        return `${this.getType()} c"${this.value}"`;
     }
 }
