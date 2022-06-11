@@ -402,5 +402,8 @@ class IRBuilder {
         this.insert(instruction);
         return instruction;
     }
+    CreateComment(text: string) {
+        this.insert(new Instructions.CommentInst(text));
+    }
 }
 export default IRBuilder;

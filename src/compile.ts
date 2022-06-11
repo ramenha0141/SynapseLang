@@ -6,6 +6,7 @@ import Module, { ModuleMap } from './common/Module';
 import * as llvm from './llvm';
 import create_main from './create_main';
 const compile = (options: CompilerOptions) => {
+    global.dev = !!options.dev;
     const entryPath = options.filePath ?? 'index.syn';
     const rootDir = options.rootDir ?? './';
     const builtinsPath = '';

@@ -1,36 +1,40 @@
 import path from 'path';
 
 const parse_parameter = (argv: string[]): CompilerOptions => {
-    const parameter: CompilerOptions = {};
+    const options: CompilerOptions = {};
     while (argv.length) {
         const arg = argv.shift();
         switch (arg) {
             case '--help': {
-                parameter.help = true;
+                options.help = true;
+                break;
+            }
+            case '--dev': {
+                options.dev = true;
                 break;
             }
             case '-o': {
-                parameter.filePath = argv.shift();
+                options.filePath = argv.shift();
                 break;
             }
             case '-rootDir': {
-                parameter.rootDir = argv.shift();
+                options.rootDir = argv.shift();
                 break;
             }
             case '-arch': {
-                parameter.arch = argv.shift();
+                options.arch = argv.shift();
                 break;
             }
             case '-sys': {
-                parameter.sys = argv.shift();
+                options.sys = argv.shift();
                 break;
             }
             default: {
-                parameter.filePath = arg;
-                if (!path.extname(arg ?? '')) parameter.filePath += '.syn';
+                options.filePath = arg;
+                if (!path.extname(arg ?? '')) options.filePath += '.syn';
             }
         }
     }
-    return parameter;
+    return options;
 };
 export default parse_parameter;

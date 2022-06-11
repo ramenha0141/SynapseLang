@@ -22,11 +22,11 @@ export class ConstantInt extends Constant {
         if (value !== parseInt(value.toString())) throw new Error();
         return new ConstantInt(type, value);
     }
-    static getTrue(): ConstantInt {
-        return new ConstantInt(Type.getInt1Ty(), 1);
+    static getTrue(type: Type): ConstantInt {
+        return new ConstantInt(type, 1);
     }
-    static getFalse(): ConstantInt {
-        return new ConstantInt(Type.getInt1Ty(), 0);
+    static getFalse(type: Type): ConstantInt {
+        return new ConstantInt(type, 0);
     }
     public toString(): string {
         if (this.getType().getBitWidth() === 1) {

@@ -34,6 +34,8 @@ export const VariableDeclaration = (context: VariableDeclarationContext, scope: 
     const expression = context.expression && Expression.Expression(context.expression, scope, typeAnnotation);
     // Type conflict between type annotation and expression
     if (expression && typeAnnotation && expression?.getType().getTypeID() === typeAnnotation.getTypeID()) throw new Error();
+    // dev
+    if (dev) builder.CreateComment(`${context.isConstant ? 'const' : 'let'} ${context.identifier}`);
     const variable = builder.CreateAlloca(typeAnnotation ?? expression?.getType() ?? llvm.Type.getInt32Ty());
     if (expression) builder.CreateStore(expression, variable);
     scope.import(context.identifier, variable);

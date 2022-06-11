@@ -302,3 +302,11 @@ export class SelectInst extends Instruction {
         return `${this.getName()} = select ${this.condition}, ${this.trueValue}, ${this.falseValue}`;
     }
 }
+export class CommentInst extends Instruction {
+    constructor(private text: string) {
+        super(Type.getVoidTy());
+    }
+    print(): string {
+        return `; ${this.text}`;
+    }
+}

@@ -52,6 +52,15 @@ export const Expression = (context: ExpressionContext, scope: Scope, expectedTyp
         case 'IndexExpression': return IndexExpression(context, scope, expectedType);
         case 'MemberExpression': return MemberExpression(context, scope, expectedType);
         case 'CallExpression': return CallExpression(context, scope, expectedType);
+        case 'ThisExpression': return ThisExpression(context, scope, expectedType);
+        case 'SuperExpression': return SuperExpression(context, scope, expectedType);
+        case 'ParenthesizedExpression': return ParenthesizedExpression(context, scope, expectedType);
+        case 'NullLiteral': return NullLiteral(context, scope, expectedType);
+        case 'BooleanLiteral': return BooleanLiteral(context, scope, expectedType);
+        case 'StringLiteral': return StringLiteral(context, scope, expectedType);
+        case 'NumberLiteral': return NumberLiteral(context, scope, expectedType);
+        case 'ArrayLiteral': return ArrayLiteral(context, scope, expectedType);
+        case 'Identifier': return Identifier(context, scope, expectedType);
         default: throw new Error();
     }
 };
@@ -278,7 +287,7 @@ export const BitNotExpression = (context: BitNotExpressionContext, scope: Scope,
 };
 export const NotExpression = (context: NotExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
     const condition = Condition(context.expression, scope);
-    return builder.CreateICmpNE(condition, llvm.ConstantInt.getFalse());
+    return builder.CreateICmpNE(condition, llvm.ConstantInt.getFalse(llvm.Type.getInt1Ty()));
 };
 //@ts-expect-error
 export const NewExpression = (context: NewExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
@@ -380,4 +389,56 @@ export const CallExpression = (context: CallExpressionContext, scope: Scope, exp
     if (!(func instanceof llvm.Function)) throw new Error();
     const args = context.arguments.items.map(arg => Expression(arg, scope));
     return builder.CreateCall(func, args);
+};
+//@ts-expect-error
+export const ThisExpression = (context: ThisExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
+
+};
+//@ts-expect-error
+export const SuperExpression = (context: SuperExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
+
+};
+export const ParenthesizedExpression = (context: ParenthesizedExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
+    return Expression(context.expression, scope, expectedType);
+};
+export const NullLiteral = (context: NullLiteralContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
+    if (!expectedType) throw new Error();
+    if (!expectedType.isPointerTy()) throw new Error();
+    return llvm.ConstantPointerNull.get(expectedType);
+};
+export const BooleanLiteral = (context: BooleanLiteralContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
+    return context.text === 'true'
+        ? llvm.ConstantInt.getTrue(expectedType ?? llvm.Type.getInt1Ty())
+        : llvm.ConstantInt.getFalse(expectedType ?? llvm.Type.getInt1Ty());
+};
+//@ts-expect-error
+export const StringLiteral = (context: StringLiteralContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
+
+};
+export const NumberLiteral = (context: NumberLiteralContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
+    if (expectedType) {
+        if (expectedType.isIntegerTy()) {
+            if (context.isFloat) throw new Error();
+            return llvm.ConstantInt.get(expectedType, context.number);
+        } else if (expectedType.isFloatingPointTy()) {
+            if (!context.isFloat) throw new Error();
+            return llvm.ConstantFP.get(expectedType, context.number);
+        } else {
+            throw new Error();
+        }
+    } else {
+        if (!context.isFloat) {
+            return llvm.ConstantInt.get(llvm.Type.getInt32Ty(), context.number);
+        } else {
+            return llvm.ConstantFP.get(llvm.Type.getFloatTy(), context.number);
+        }
+    }
+};
+//@ts-expect-error
+export const ArrayLiteral = (context: ArrayLiteralContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
+
+};
+export const Identifier = (context: IdentifierContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
+    const variable = IdentifierReference(context, scope);
+    return builder.CreateLoad(variable.getType().getPointerElementType(), variable);
 };
