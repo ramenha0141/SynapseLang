@@ -4,6 +4,7 @@ import parser from './parser';
 import module_resolver from './module_resolver';
 import Module, { ModuleMap } from './common/Module';
 import * as llvm from './llvm';
+import * as Types from './common/Types';
 import create_main from './create_main';
 const compile = (options: CompilerOptions) => {
     global.dev = !!options.dev;
@@ -21,7 +22,7 @@ const compile = (options: CompilerOptions) => {
             'utf-8'
         );
         const moduleContext = parser(source);
-        const module = new Module(modulePath, moduleContext.declarations, { int: llvm.Type.getInt32Ty() });
+        const module = new Module(modulePath, moduleContext.declarations, Types);
         for (const importContext of moduleContext.importDeclarations) {
             switch (importContext.type) {
                 case 'ImportDefineDeclaration': {

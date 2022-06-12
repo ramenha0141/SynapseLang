@@ -8,7 +8,7 @@ export interface Symbols {
 class Scope {
     constructor(parent?: Scope, injectSymbols?: Symbols) {
         this.parent = parent;
-        if (injectSymbols) this.symbols = injectSymbols;
+        if (injectSymbols) this.symbols = { ...injectSymbols };
     }
     parent?: Scope;
     private symbols: Symbols = {};

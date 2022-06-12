@@ -33,7 +33,7 @@ export const VariableDeclaration = (context: VariableDeclarationContext, scope: 
     const typeAnnotation = context.typeAnnotation && scope.getType(context.typeAnnotation.identifier.identifiers);
     const expression = context.expression && Expression.Expression(context.expression, scope, typeAnnotation);
     // Type conflict between type annotation and expression
-    if (expression && typeAnnotation && expression?.getType().getTypeID() === typeAnnotation.getTypeID()) throw new Error();
+    if (expression && typeAnnotation && expression?.getType().getTypeID() !== typeAnnotation.getTypeID()) throw new Error();
     // dev
     if (dev) builder.CreateComment(`${context.isConstant ? 'const' : 'let'} ${context.identifier}`);
     const variable = builder.CreateAlloca(typeAnnotation ?? expression?.getType() ?? llvm.Type.getInt32Ty());
