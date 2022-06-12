@@ -53,7 +53,7 @@ const lexer = buildLexer([
     [true, /^null/g, TokenKind.NullLiteral],
     [true, /^(true|false)/g, TokenKind.BooleanLiteral],
     [true, /^(0|[1-9][0-9]*)/g, TokenKind.DecimalIntegerLiteral],
-    [true, /^[1-9][0-9]*\.[0-9]+/g, TokenKind.DecimalFloatLiteral],
+    [true, /^[0-9]+\.[0-9]+/g, TokenKind.DecimalFloatLiteral],
     [true, /^0[xX][0-9a-fA-F]+/g, TokenKind.HexIntegerLiteral],
     [true, /^('([^'\\\r\n]|\\['"bfnrtv])*'|"([^"\\\r\n]|\\['"bfnrtv])*")/g, TokenKind.StringLiteral],
     [true, /^from/g, TokenKind.From],

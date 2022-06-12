@@ -41,13 +41,25 @@ export class ConstantInt extends Constant {
     }
 }
 export class ConstantFP extends Constant {
-    private value: number;
-    protected constructor(type: Type, value: number) {
+    private value: string;
+    protected constructor(type: Type, value: string) {
         super(type);
         this.value = value;
     }
-    static get(type: Type, value: number): ConstantFP {
-        return new ConstantFP(type, value);
+    static get(type: Type, fp: number): ConstantFP {
+        const buffer = new ArrayBuffer(8);
+        const float64Array = new Float64Array(buffer);
+        const uint64Array = new BigUint64Array(buffer);
+        float64Array[0] = fp;
+        const doubleString = uint64Array[0].toString(16);
+        if (type.isDoubleTy()) {
+            return new ConstantFP(type, `0x${doubleString}`);
+        } else {
+            const floatStringArray = [...doubleString.slice(0, 9), ...'0'.repeat(7)];
+            if (parseInt(floatStringArray[8], 16) % 2 === 1) floatStringArray[8] = (parseInt(floatStringArray[8], 16) - 1).toString(16);
+            const floatString = floatStringArray.join('');
+            return new ConstantFP(type, `0x${floatString}`);
+        }
     }
     public toString(): string {
         return `${this.Ty} ${this.value}`;
