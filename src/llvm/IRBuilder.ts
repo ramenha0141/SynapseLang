@@ -23,7 +23,9 @@ class IRBuilder {
     }
     private setName(instruction: Instruction) {
         if (!this.basicBlock) throw new Error();
-        instruction.setName(this.basicBlock.getParent().createIdentifier());
+        const func = this.basicBlock.getParent();
+        if (!func) throw new Error();
+        instruction.setName(func.createIdentifier());
     }
     CreateGlobalString(str: string, name?: string): GlobalVariable {
         if (!name) {

@@ -33,8 +33,7 @@ class Function extends Value {
     public addBasicBlock(basicBlock: BasicBlock) {
         this.basicBlocks.push(basicBlock);
     }
-    public createIdentifier(label?: boolean): any {
-        if (label) return (this.count++).toString();
+    public createIdentifier(): any {
         return '%' + this.count++;
     }
     public print(): string {

@@ -39,6 +39,17 @@ export class ConstantInt extends Constant {
             return `${this.Ty} ${this.value}`;
         }
     }
+    public toStringNoType(): string {
+        if (this.getType().getBitWidth() === 1) {
+            if (this.value === 1) {
+                return 'true';
+            } else {
+                return 'false';
+            }
+        } else {
+            return this.value.toString();
+        }
+    }
 }
 export class ConstantFP extends Constant {
     private value: string;
@@ -64,6 +75,9 @@ export class ConstantFP extends Constant {
     public toString(): string {
         return `${this.Ty} ${this.value}`;
     }
+    public toStringNoType(): string {
+        return this.value;
+    }
 }
 export class ConstantPointerNull extends Constant {
     protected constructor(Ty: Type) {
@@ -74,6 +88,9 @@ export class ConstantPointerNull extends Constant {
     }
     public toString(): string {
         return `${this.Ty} null`;
+    }
+    public toStringNoType(): string {
+        return 'null';
     }
 }
 const textEncoder = new TextEncoder();
@@ -92,5 +109,8 @@ export class ConstantString extends Constant {
     }
     public toString(): string {
         return `${this.getType()} c"${this.value}"`;
+    }
+    public toStringNoType(): string {
+        return this.value;
     }
 }

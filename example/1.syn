@@ -1,3 +1,8 @@
 function main() {
-    const a: float = 0.1;
+    let a = 0.0;
+    let i = 0;
+    while(i < 10) {
+        a = a + 0.1;
+        i++;
+    }
 }

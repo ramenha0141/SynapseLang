@@ -263,7 +263,7 @@ export class ICmpInst extends Instruction {
         super(Type.getInt1Ty());
     }
     print(): string {
-        return `${this.getName()} = icmp ${this.operator} ${this.lhs}, ${this.rhs}`;
+        return `${this.getName()} = icmp ${this.operator} ${this.lhs}, ${this.rhs.toStringNoType()}`;
     }
 }
 export class FCmpInst extends Instruction {
@@ -271,7 +271,7 @@ export class FCmpInst extends Instruction {
         super(Type.getInt1Ty());
     }
     print(): string {
-        return `${this.getName()} = fcmp ${this.operator} ${this.lhs}, ${this.rhs}`;
+        return `${this.getName()} = fcmp ${this.operator} ${this.lhs}, ${this.rhs.toStringNoType()}`;
     }
 }
 export type PHIPair = [Value, Value];

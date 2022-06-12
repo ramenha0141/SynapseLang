@@ -66,7 +66,7 @@ export const Expression = (context: ExpressionContext, scope: Scope, expectedTyp
 };
 export const AssignmentExpression = (context: AssignmentExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
     const variable = Reference(context.left, scope);
-    const expression = Expression(context.right, scope, variable.getType());
+    const expression = Expression(context.right, scope, variable.getType().getPointerElementType());
     switch (context.operator) {
         case '=': {
             builder.CreateStore(expression, variable);
@@ -123,8 +123,8 @@ export const BitAndExpression = (context: BitAndExpressionContext, scope: Scope,
     return builder.CreateAnd(right, left);
 };
 export const EqualityExpression = (context: EqualityExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
-    const left = Expression(context.left, scope, expectedType);
-    const right = Expression(context.right, scope, expectedType);
+    const left = Expression(context.left, scope);
+    const right = Expression(context.right, scope, left.getType());
     if (left.getType().getTypeID() !== right.getType().getTypeID()) throw new Error();
     const type = left.getType();
     if (type.isIntegerTy() || type.isPointerTy()) {
@@ -145,8 +145,8 @@ export const EqualityExpression = (context: EqualityExpressionContext, scope: Sc
     throw new Error();
 };
 export const RelationalExpression = (context: RelationalExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
-    const left = Expression(context.left, scope, expectedType);
-    const right = Expression(context.right, scope, expectedType);
+    const left = Expression(context.left, scope);
+    const right = Expression(context.right, scope, left.getType());
     if (left.getType().getTypeID() !== right.getType().getTypeID()) throw new Error();
     const type = left.getType();
     if (type.isIntegerTy()) {
@@ -318,11 +318,11 @@ export const PreIncrementExpression = (context: PreIncrementExpressionContext, s
     const value = builder.CreateLoad(type, variable);
     if (type.isIntegerTy()) {
         const expression = builder.CreateAdd(value, llvm.ConstantInt.get(type, 1));
-        builder.CreateStore(variable, expression);
+        builder.CreateStore(expression, variable);
         return expression;
     } else if (type.isFloatingPointTy()) {
         const expression = builder.CreateFAdd(value, llvm.ConstantInt.get(type, 1));
-        builder.CreateStore(variable, expression);
+        builder.CreateStore(expression, variable);
         return expression;
     } else {
         throw new Error();
@@ -334,11 +334,11 @@ export const PreDecrementExpression = (context: PreDecrementExpressionContext, s
     const value = builder.CreateLoad(type, variable);
     if (type.isIntegerTy()) {
         const expression = builder.CreateSub(value, llvm.ConstantInt.get(type, 1));
-        builder.CreateStore(variable, expression);
+        builder.CreateStore(expression, variable);
         return expression;
     } else if (type.isFloatingPointTy()) {
         const expression = builder.CreateFSub(value, llvm.ConstantInt.get(type, 1));
-        builder.CreateStore(variable, expression);
+        builder.CreateStore(expression, variable);
         return expression;
     } else {
         throw new Error();
@@ -350,11 +350,11 @@ export const PostIncrementExpression = (context: PostIncrementExpressionContext,
     const value = builder.CreateLoad(type, variable);
     if (type.isIntegerTy()) {
         const expression = builder.CreateAdd(value, llvm.ConstantInt.get(type, 1));
-        builder.CreateStore(variable, expression);
+        builder.CreateStore(expression, variable);
         return value;
     } else if (type.isFloatingPointTy()) {
         const expression = builder.CreateFAdd(value, llvm.ConstantInt.get(type, 1));
-        builder.CreateStore(variable, expression);
+        builder.CreateStore(expression, variable);
         return value;
     } else {
         throw new Error();
@@ -366,11 +366,11 @@ export const PostDecrementExpression = (context: PostDecrementExpressionContext,
     const value = builder.CreateLoad(type, variable);
     if (type.isIntegerTy()) {
         const expression = builder.CreateSub(value, llvm.ConstantInt.get(type, 1));
-        builder.CreateStore(variable, expression);
+        builder.CreateStore(expression, variable);
         return value;
     } else if (type.isFloatingPointTy()) {
         const expression = builder.CreateFSub(value, llvm.ConstantInt.get(type, 1));
-        builder.CreateStore(variable, expression);
+        builder.CreateStore(expression, variable);
         return value;
     } else {
         throw new Error();
@@ -422,7 +422,6 @@ export const NumberLiteral = (context: NumberLiteralContext, scope: Scope, expec
             if (context.isFloat) throw new Error();
             return llvm.ConstantInt.get(expectedType, context.number);
         } else if (expectedType.isFloatingPointTy()) {
-            if (!context.isFloat) throw new Error();
             return llvm.ConstantFP.get(expectedType, context.number);
         } else {
             throw new Error();
