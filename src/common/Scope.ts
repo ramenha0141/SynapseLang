@@ -2,7 +2,7 @@ import * as llvm from '../llvm';
 import Module from './Module';
 
 export interface Symbols {
-    [key: string]: llvm.Type | llvm.Value | llvm.Function | Module,
+    [key: string]: llvm.Type | llvm.Value | llvm.Function | Scope,
     [key: symbol]: llvm.Function | llvm.BasicBlock
 }
 class Scope {
@@ -15,7 +15,7 @@ class Scope {
     getSymbol(identifier: (string | symbol) | string[]): any {
         const symbol = Array.isArray(identifier)
             ? identifier.length > 1
-                ? this.getModule(identifier[0])?.getSymbol(identifier.slice(1))
+                ? this.getScope(identifier[0])?.getSymbol(identifier.slice(1))
                 : this.getSymbol(identifier[0])
             : this.symbols[identifier] ?? this.parent?.getSymbol(identifier);
         if (!symbol) throw new Error();
@@ -36,9 +36,9 @@ class Scope {
         if (!(symbol instanceof llvm.Function)) throw new Error();
         return symbol;
     }
-    getModule(identifier: string | string[]): Module {
+    getScope(identifier: string | string[]): Scope {
         const symbol = this.getSymbol(identifier);
-        if (!(symbol instanceof Module)) throw new Error();
+        if (!(symbol instanceof Scope)) throw new Error();
         return symbol;
     }
     getBreakBlock(): llvm.BasicBlock {
