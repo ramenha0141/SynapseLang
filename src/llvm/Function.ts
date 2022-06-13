@@ -37,7 +37,8 @@ class Function extends Value {
         return '%' + this.count++;
     }
     public print(): string {
-        return `define ${this.Ty.getReturnType()} ${this.name}(${this.args.join(', ')}) {\n${this.basicBlocks.map(basicBlock => basicBlock.print()).join('\n')}\n}`;
+        if (this.basicBlocks.length > 0) return `define ${this.Ty.getReturnType()} ${this.name}(${this.args.join(', ')}) {\n${this.basicBlocks.map(basicBlock => basicBlock.print()).join('\n')}\n}`;
+        return `declare ${this.Ty.getReturnType()} ${this.name}(${this.args.join(', ')})`;
     }
 }
 export default Function;

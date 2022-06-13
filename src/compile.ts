@@ -4,7 +4,7 @@ import parser from './parser';
 import module_resolver from './module_resolver';
 import Module, { ModuleMap } from './common/Module';
 import * as llvm from './llvm';
-import * as Types from './common/Types';
+import * as Types from './builtins/Types';
 import create_main from './create_main';
 const compile = (options: CompilerOptions) => {
     global.dev = !!options.dev;
