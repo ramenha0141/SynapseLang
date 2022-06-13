@@ -62,7 +62,7 @@ const compile = (options: CompilerOptions) => {
     create_main(moduleMap[entryPath]);
     const tmpFile = tmp.fileSync({ postfix: '.ll' });
     fs.writeFileSync(tmpFile.name, llvmModule.print());
-    child_process.execSync(`clang ${tmpFile.name} -o ${options.outputPath ?? `${path.basename(options.filePath!)}.exe`}`);
+    child_process.execSync(`clang ${tmpFile.name} -o ${options.outputPath ?? `${path.basename(options.filePath!, '.syn')}.exe`}`);
     tmpFile.removeCallback();
 };
 export default compile;
