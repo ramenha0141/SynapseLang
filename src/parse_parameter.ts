@@ -5,6 +5,7 @@ const parse_parameter = (argv: string[]): CompilerOptions => {
     while (argv.length) {
         const arg = argv.shift();
         switch (arg) {
+            case '--': break;
             case '--help': {
                 options.help = true;
                 break;
