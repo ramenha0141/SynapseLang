@@ -1,9 +1,12 @@
 import fs from 'fs';
 import path from 'path';
+import tmp from 'tmp';
+import child_process from 'child_process';
+
+import * as llvm from './llvm';
 import parser from './parser';
 import module_resolver from './module_resolver';
 import Module, { ModuleMap } from './common/Module';
-import * as llvm from './llvm';
 import builtins from './builtins';
 import create_main from './create_main';
 const compile = (options: CompilerOptions) => {
@@ -56,7 +59,10 @@ const compile = (options: CompilerOptions) => {
         moduleMap[modulePath] = module;
     };
     loadModule(entryPath);
-    create_main(moduleMap[entryPath])
-    console.log(llvmModule.print());
+    create_main(moduleMap[entryPath]);
+    const tmpFile = tmp.fileSync({ postfix: '.ll' });
+    fs.writeFileSync(tmpFile.name, llvmModule.print());
+    child_process.execSync(`clang ${tmpFile.name} -o ${options.outputPath ?? `${path.basename(options.filePath!)}.exe`}`);
+    tmpFile.removeCallback();
 };
 export default compile;

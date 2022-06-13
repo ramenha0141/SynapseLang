@@ -14,7 +14,7 @@ const parse_parameter = (argv: string[]): CompilerOptions => {
                 break;
             }
             case '-o': {
-                options.filePath = argv.shift();
+                options.outputPath = argv.shift();
                 break;
             }
             case '-rootDir': {
