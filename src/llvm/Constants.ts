@@ -102,7 +102,7 @@ export class ConstantString extends Constant {
     }
     static get(str: string): ConstantString {
         const stringUInt8Array = textEncoder.encode(str);
-        const stringArray = [...stringUInt8Array].map((decimal) => `\\${decimal.toString(16)}`);
+        const stringArray = [...stringUInt8Array].map((decimal) => `\\${('0' + decimal.toString(16)).slice(-2)}`);
         stringArray.push('\\00');
         const string = stringArray.join('');
         return new ConstantString(ArrayType.get(Type.getInt8Ty(), stringArray.length), string);

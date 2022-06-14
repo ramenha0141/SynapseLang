@@ -13,7 +13,7 @@ const console = (llvmModule: llvm.Module) => {
     const puts_type = llvm.FunctionType.get(i32, [i8_ptr], false);
     const puts = llvm.Function.Create(puts_type, '"console::puts"', llvmModule);
     builder.SetInsertPoint(llvm.BasicBlock.Create(puts));
-    builder.CreateRet(builder.CreateCall(printf, [puts_str, puts.getArg(0)]));
+    builder.CreateRet(builder.CreateCall(printf, [builder.CreateGEP(i8_ptr, puts_str, [llvm.ConstantInt.get(i32, 0), llvm.ConstantInt.get(i32, 0)]), puts.getArg(0)]));
     console.import('puts', puts);
     return console;
 };
