@@ -60,9 +60,15 @@ const compile = (options: CompilerOptions) => {
     };
     loadModule(entryPath);
     create_main(moduleMap[entryPath]);
-    const tmpFile = tmp.fileSync({ postfix: '.ll' });
-    fs.writeFileSync(tmpFile.name, llvmModule.print());
-    child_process.execSync(`clang ${tmpFile.name} -o ${options.outputPath ?? `${path.basename(options.filePath!, '.syn')}.exe`}`);
-    tmpFile.removeCallback();
+    const IR = llvmModule.print();
+    if (options.ir) {
+        fs.writeFileSync(options.outputPath ?? `${path.basename(options.filePath ?? 'a', '.syn')}.ll`, IR);
+    } else {
+        const tmpFile = tmp.fileSync({ postfix: '.ll' });
+        fs.writeFileSync(tmpFile.name, IR);
+        child_process.execSync(`clang ${tmpFile.name} -o ${options.outputPath ?? `${path.basename(options.filePath ?? 'a', '.syn')}.exe`}`);
+        tmpFile.removeCallback();
+    }
+
 };
 export default compile;

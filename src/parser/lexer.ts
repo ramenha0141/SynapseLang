@@ -73,7 +73,7 @@ const lexer = buildLexer([
     [true, /^return/g, TokenKind.Return],
     [true, /^void/g, TokenKind.Void],
     [true, /^continue/g, TokenKind.Continue],
-    [true, /^fir/g, TokenKind.For],
+    [true, /^for/g, TokenKind.For],
     [true, /^in/g, TokenKind.In],
     [true, /^switch/g, TokenKind.Switch],
     [true, /^while/g, TokenKind.While],

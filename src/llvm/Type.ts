@@ -263,9 +263,12 @@ export class FunctionType extends Type {
     public getParamTypes() {
         return this.paramTypes;
     }
+    public getIsVarArg() {
+        return this.isVarArg;
+    }
     public toString(): string {
         if (this.isVarArg) {
-            return `(${this.paramTypes.join(', ')}) => ${this.returnType}`;
+            return `${this.returnType} (${this.paramTypes.join(', ')}, ...)`;
         } else {
             return this.returnType.toString();
         }

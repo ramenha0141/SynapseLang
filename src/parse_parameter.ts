@@ -14,6 +14,10 @@ const parse_parameter = (argv: string[]): CompilerOptions => {
                 options.dev = true;
                 break;
             }
+            case '--ir': {
+                options.ir = true;
+                break;
+            }
             case '-o': {
                 options.outputPath = argv.shift();
                 break;

@@ -6,7 +6,7 @@ const i8_ptr = llvm.Type.getInt8Ty().getPointerTo();
 
 const console = (llvmModule: llvm.Module) => {
     const console = new Scope(undefined);
-    const printf_type = llvm.FunctionType.get(i32, [i8_ptr], false);
+    const printf_type = llvm.FunctionType.get(i32, [i8_ptr], true);
     const printf = llvm.Function.Create(printf_type, 'printf', llvmModule);
     // put int
     const puts_type = llvm.FunctionType.get(i32, [i8_ptr], false);
