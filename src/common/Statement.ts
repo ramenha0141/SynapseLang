@@ -68,6 +68,7 @@ export const IfStatement = (context: IfStatementContext, scope: Scope) => {
         elseBlock.insertTo(functionContext);
         builder.SetInsertPoint(elseBlock);
         Statement(context.else, scope);
+        builder.CreateBr(endBlock);
         endBlock.insertTo(functionContext);
         builder.SetInsertPoint(endBlock);
     } else {

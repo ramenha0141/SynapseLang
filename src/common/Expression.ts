@@ -153,7 +153,7 @@ export const RelationalExpression = (context: RelationalExpressionContext, scope
         switch (context.operator) {
             case '<': return builder.CreateICmpSLT(left, right);
             case '>': return builder.CreateICmpSGT(left, right);
-            case '<=': return builder.CreateICmpSGE(left, right);
+            case '<=': return builder.CreateICmpSLE(left, right);
             case '>=': return builder.CreateICmpSGE(left, right);
         }
     } else if (type.isFloatingPointTy()) {

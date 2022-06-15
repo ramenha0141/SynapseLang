@@ -1,0 +1,16 @@
+function main() {
+    fizzbuzz(15);
+}
+function fizzbuzz(count: int) {
+    for (let i = 1; i <= count; i++) {
+        if (i % 15 == 0) {
+            console::puts('fizzbuzz');
+        } else if (i % 3 == 0) {
+            console::puts('fizz');
+        } else if (i % 5 == 0) {
+            console::puts('buzz');
+        } else {
+            console::puti(i);
+        }
+    }
+}

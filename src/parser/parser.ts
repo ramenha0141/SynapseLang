@@ -725,14 +725,15 @@ MultiplicativeExpression.setPattern(
         seq(
             alt(
                 tok(TokenKind.Multiply),
-                tok(TokenKind.Divide)
+                tok(TokenKind.Divide),
+                tok(TokenKind.Modulus)
             ),
             AssertionExpression
         ),
         (a, b) => (b ? {
             type: 'MultiplicativeExpression',
             left: a,
-            operator: b[0].text as '*' | '/',
+            operator: b[0].text as '*' | '/' | '%',
             right: b[1]
         } : a)
     )
@@ -1094,7 +1095,7 @@ Parameter.setPattern(
     apply(
         seq(
             tok(TokenKind.Identifier),
-            Type
+            TypeAnnotation
         ),
         (value) => ({
             type: 'Parameter',

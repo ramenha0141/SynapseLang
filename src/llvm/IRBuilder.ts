@@ -8,7 +8,6 @@ import Function from './Function';
 import GlobalVariable from './GlobalVariable';
 import { ConstantString } from './Constants';
 
-const hash = crypto.createHash('sha256');
 class IRBuilder {
     private basicBlock?: BasicBlock;
     constructor(basicBlock?: BasicBlock) {
@@ -29,6 +28,7 @@ class IRBuilder {
     }
     CreateGlobalString(str: string, name?: string): GlobalVariable {
         if (!name) {
+            const hash = crypto.createHash('sha256');
             hash.update(str);
             name = `"${hash.digest('base64')}"`;
         }
