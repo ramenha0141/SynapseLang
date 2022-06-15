@@ -1,7 +1,9 @@
 import * as llvm from '../llvm';
 
-import Scope, { Symbols } from './Scope';
+import Scope from './Scope';
 import Condition from './Condition';
+
+const i32 = llvm.Type.getInt32Ty();
 
 const Reference = (context: ExpressionContext, scope: Scope): llvm.Value => {
     switch (context.type) {
@@ -13,8 +15,8 @@ const Reference = (context: ExpressionContext, scope: Scope): llvm.Value => {
 };
 const IndexReference = (context: IndexExpressionContext, scope: Scope): llvm.Value => {
     const reference = Reference(context.expression, scope);
-    const index = Expression(context.index, scope, llvm.Type.getInt32Ty());
-    return builder.CreateGEP(reference.getType().getPointerElementType(), reference, [llvm.ConstantInt.get(llvm.Type.getInt32Ty(), 0), index]);
+    const index = Expression(context.index, scope, i32);
+    return builder.CreateGEP(reference.getType().getPointerElementType(), reference, [llvm.ConstantInt.get(i32, 0), index]);
 };
 //@ts-expect-error
 const MemberReference = (context: MemberExpressionContext, scope: Scope): llvm.Value => {
@@ -306,8 +308,8 @@ export const SizeofExpression = (context: SizeofExpressionContext, scope: Scope,
     if (primitiveSize) {
         return llvm.ConstantInt.get(type, Math.ceil(primitiveSize / 4));
     } else if (isPointerTy(type)) {
-        const ptr = builder.CreateGEP(type, llvm.ConstantPointerNull.get(type), [llvm.ConstantInt.get(llvm.Type.getInt32Ty(), 1)]);
-        return builder.CreatePtrToInt(ptr, expectedType ?? llvm.Type.getInt32Ty());
+        const ptr = builder.CreateGEP(type, llvm.ConstantPointerNull.get(type), [llvm.ConstantInt.get(i32, 1)]);
+        return builder.CreatePtrToInt(ptr, expectedType ?? i32);
     } else {
         throw new Error();
     }
@@ -413,7 +415,6 @@ export const BooleanLiteral = (context: BooleanLiteralContext, scope: Scope, exp
 };
 export const StringLiteral = (context: StringLiteralContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
     const variable = builder.CreateGlobalString(context.text);
-    const i32 = llvm.Type.getInt32Ty();
     return builder.CreateGEP(llvm.Type.getInt8Ty().getPointerTo(), variable, [llvm.ConstantInt.get(i32, 0), llvm.ConstantInt.get(i32, 0)]);
 };
 export const NumberLiteral = (context: NumberLiteralContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
@@ -428,7 +429,7 @@ export const NumberLiteral = (context: NumberLiteralContext, scope: Scope, expec
         }
     } else {
         if (!context.isFloat) {
-            return llvm.ConstantInt.get(llvm.Type.getInt32Ty(), context.number);
+            return llvm.ConstantInt.get(i32, context.number);
         } else {
             return llvm.ConstantFP.get(llvm.Type.getFloatTy(), context.number);
         }
