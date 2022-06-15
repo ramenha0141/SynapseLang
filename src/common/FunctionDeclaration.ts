@@ -2,6 +2,7 @@ import * as llvm from '../llvm';
 
 import Module from './Module';
 import Scope from './Scope';
+import Type from './Type';
 import * as Statement from './Statement';
 
 class FunctionDeclaration extends Scope {
@@ -10,9 +11,9 @@ class FunctionDeclaration extends Scope {
         super(module);
         this.context = context;
         this.isVoid = !context.typeAnnotation || context.typeAnnotation.isVoid;
-        const returnType = !context.typeAnnotation || context.typeAnnotation.isVoid
-            ? llvm.Type.getVoidTy()
-            : module.getType(context.typeAnnotation.identifier.identifiers);
+        const returnType = context.typeAnnotation
+            ? Type(context.typeAnnotation, this)
+            : llvm.Type.getVoidTy();
         const parameterTypes = context.parameterList.map((parameter) => {
             if (parameter.typeAnnotation.isVoid) throw new Error();
             return module.getType(parameter.typeAnnotation.identifier.identifiers);

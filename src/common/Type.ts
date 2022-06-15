@@ -1,0 +1,13 @@
+import * as llvm from '../llvm';
+import Scope from './Scope';
+
+const Type = (context: TypeContext, scope: Scope): llvm.Type => {
+    if (context.isVoid) return llvm.Type.getVoidTy();
+    let type = scope.getType(context.identifier.identifiers);
+    const dimensions = [...context.dimensions];
+    while(dimensions.length > 0) {
+        type = llvm.ArrayType.get(type, dimensions.pop()!);
+    }
+    return type;
+};
+export default Type;
