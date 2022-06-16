@@ -1,0 +1,19 @@
+function main() {
+    let sieve: boolean[100];
+    sieve[0] = sieve[1] = false;
+    for (let i = 2; i < 100; i++) {
+        sieve[i] = true;
+    }
+    for (let i = 2; i <= 10; i++) {
+        if (sieve[i] == true) {
+            for (let j = i * 2; j < 100; j += i) {
+                sieve[j] = false;
+            }
+        }
+    }
+    for (let i = 0; i < 100; i++) {
+        if (sieve[i] == true) {
+            console::puti(i);
+        }
+    }
+}

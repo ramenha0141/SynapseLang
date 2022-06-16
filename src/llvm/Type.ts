@@ -102,7 +102,7 @@ class Type {
     public isStructTy() {
         return this.ID === TypeID.StructTyID;
     }
-    public isArrayTy() {
+    public isArrayTy(): this is ArrayType {
         return this.ID === TypeID.ArrayTyID;
     }
     public isPointerTy(): this is PointerType {

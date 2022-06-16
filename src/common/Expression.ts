@@ -16,7 +16,9 @@ const Reference = (context: ExpressionContext, scope: Scope): llvm.Value => {
 const IndexReference = (context: IndexExpressionContext, scope: Scope): llvm.Value => {
     const reference = Reference(context.expression, scope);
     const index = Expression(context.index, scope, i32);
-    return builder.CreateGEP(reference.getType().getPointerElementType(), reference, [llvm.ConstantInt.get(i32, 0), index]);
+    const arrayType = reference.getType().getPointerElementType();
+    if (!arrayType.isArrayTy()) throw new Error();
+    return builder.CreateGEP(arrayType.getElementType().getPointerTo(), reference, [llvm.ConstantInt.get(i32, 0), index]);
 };
 //@ts-expect-error
 const MemberReference = (context: MemberExpressionContext, scope: Scope): llvm.Value => {
@@ -72,10 +74,49 @@ export const AssignmentExpression = (context: AssignmentExpressionContext, scope
     switch (context.operator) {
         case '=': {
             builder.CreateStore(expression, variable);
-            break;
+            return expression;
+        }
+        case '+=': {
+            const value = builder.CreateLoad(variable.getType().getPointerElementType(), variable);
+            const result = value.getType().isFloatingPointTy()
+                ? builder.CreateFAdd(value, expression)
+                : builder.CreateAdd(value, expression);
+            builder.CreateStore(result, variable);
+            return result;
+        }
+        case '-=': {
+            const value = builder.CreateLoad(variable.getType().getPointerElementType(), variable);
+            const result = value.getType().isFloatingPointTy()
+                ? builder.CreateFSub(value, expression)
+                : builder.CreateSub(value, expression);
+            builder.CreateStore(result, variable);
+            return result;
+        }
+        case '*=': {
+            const value = builder.CreateLoad(variable.getType().getPointerElementType(), variable);
+            const result = value.getType().isFloatingPointTy()
+                ? builder.CreateFMul(value, expression)
+                : builder.CreateMul(value, expression);
+            builder.CreateStore(result, variable);
+            return result;
+        }
+        case '/=': {
+            const value = builder.CreateLoad(variable.getType().getPointerElementType(), variable);
+            const result = value.getType().isFloatingPointTy()
+                ? builder.CreateFDiv(value, expression)
+                : builder.CreateSDiv(value, expression);
+            builder.CreateStore(result, variable);
+            return result;
+        }
+        case '%=': {
+            const value = builder.CreateLoad(variable.getType().getPointerElementType(), variable);
+            const result = value.getType().isFloatingPointTy()
+                ? builder.CreateFRem(value, expression)
+                : builder.CreateSRem(value, expression);
+            builder.CreateStore(result, variable);
+            return result;
         }
     }
-    return expression;
 };
 export const TernaryExpression = (context: TernaryExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
     const functionContext = scope.getFunctionContext();
