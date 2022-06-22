@@ -5,7 +5,7 @@ import { Statement } from './Statement';
 import Type from './Type';
 
 class Class {
-    private struct: llvm.StructType;
+    public readonly struct: llvm.StructType;
     private fieldNames: string[] = [];
     private methods: {[key: string]: [ClassMethodContext, llvm.Function, Scope]} = {};
     constructor(private context: ClassDeclarationContext, module: Module) {

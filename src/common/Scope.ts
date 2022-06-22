@@ -1,8 +1,9 @@
 import * as llvm from '../llvm';
+import Class from './Class';
 import Module from './Module';
 
 export interface Symbols {
-    [key: string]: llvm.Type | llvm.Value | llvm.Function | Scope,
+    [key: string]: llvm.Type | llvm.Value | llvm.Function | Class | Scope,
     [key: symbol]: llvm.Function | llvm.BasicBlock | llvm.Value
 }
 class Scope {
@@ -23,6 +24,7 @@ class Scope {
     }
     getType(identifier: string | string[]): llvm.Type {
         const symbol = this.getSymbol(identifier);
+        if (symbol instanceof Class) return symbol.struct;
         if (!(symbol instanceof llvm.Type)) throw new Error();
         return symbol;
     }
@@ -34,6 +36,11 @@ class Scope {
     getFunction(identifier: string | string[]): llvm.Function {
         const symbol = this.getSymbol(identifier);
         if (!(symbol instanceof llvm.Function)) throw new Error();
+        return symbol;
+    }
+    getClass(identifier: string | string[]): Class {
+        const symbol = this.getSymbol(identifier);
+        if (!(symbol instanceof Class)) throw new Error();
         return symbol;
     }
     getScope(identifier: string | string[]): Scope {
