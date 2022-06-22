@@ -3,7 +3,7 @@ import Module from './Module';
 
 export interface Symbols {
     [key: string]: llvm.Type | llvm.Value | llvm.Function | Scope,
-    [key: symbol]: llvm.Function | llvm.BasicBlock
+    [key: symbol]: llvm.Function | llvm.BasicBlock | llvm.Value
 }
 class Scope {
     constructor(parent?: Scope, injectSymbols?: Symbols) {
@@ -49,9 +49,6 @@ class Scope {
         const symbol = this.getSymbol(Symbol.for('continue'));
         return symbol;
     }
-    import(identifier: string, symbol: llvm.Value | llvm.Function | Module) {
-        this.symbols[identifier] = symbol;
-    }
     setFunctionContext(functionContext: llvm.Function) {
         this.symbols[Symbol.for('functionContext')] = functionContext;
     }
@@ -59,6 +56,17 @@ class Scope {
         const symbol = this.getSymbol(Symbol.for('functionContext'));
         if (!(symbol instanceof llvm.Function)) throw new Error();
         return symbol;
+    }
+    setThis(This: llvm.Value) {
+        this.symbols[Symbol.for('this')] = This;
+    }
+    getThis(): llvm.Value {
+        const symbol = this.getSymbol(Symbol.for('this'));
+        if (!(symbol instanceof llvm.Value)) throw new Error();
+        return symbol;
+    }
+    import(identifier: string, symbol: llvm.Value | llvm.Function | Module) {
+        this.symbols[identifier] = symbol;
     }
 }
 export default Scope;

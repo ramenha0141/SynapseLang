@@ -320,15 +320,17 @@ ClassMethod.setPattern(
                 ParameterList,
                 tok(TokenKind.CloseParen)
             ),
-            TypeAnnotation,
+            opt(
+                TypeAnnotation
+            ),
             BlockStatement
         ),
         (value) => ({
             type: 'ClassMethod',
             identifier: value[0].text,
             parameterList: value[1],
-            typeAnnotation: value[2],
-            body: value[3]
+            typeAnnotation: value[3] && value[2],
+            body: value[3] ?? value[2]
         })
     )
 );

@@ -33,7 +33,10 @@ class Function extends Value {
     public addBasicBlock(basicBlock: BasicBlock) {
         this.basicBlocks.push(basicBlock);
     }
-    public createIdentifier(): any {
+    public getLastBasicBlock(): BasicBlock {
+        return this.basicBlocks[this.basicBlocks.length - 1];
+    }
+    public createIdentifier(): string {
         return '%' + this.count++;
     }
     public print(): string {

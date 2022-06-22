@@ -6,17 +6,13 @@ import Type from './Type';
 import * as Statement from './Statement';
 
 class FunctionDeclaration extends Scope {
-    private isVoid: boolean;
     constructor(context: FunctionDeclarationContext, module: Module) {
         super(module);
         this.context = context;
-        this.isVoid = !context.typeAnnotation || context.typeAnnotation.isVoid;
-        const returnType = context.typeAnnotation
-            ? Type(context.typeAnnotation, this)
-            : llvm.Type.getVoidTy();
+        const returnType = Type(context.typeAnnotation, module);
         const parameterTypes = context.parameterList.map((parameter) => {
             if (parameter.typeAnnotation.isVoid) throw new Error();
-            return Type(parameter.typeAnnotation, this);
+            return Type(parameter.typeAnnotation, module);
         });
         const functionType = llvm.FunctionType.get(returnType, parameterTypes, false);
         module.import(
@@ -24,8 +20,7 @@ class FunctionDeclaration extends Scope {
             this.llvmFunction = llvm.Function.Create(functionType, `"${module.id}::${context.identifier}"`, llvmModule)
         );
         module.setFunctionContext(this.llvmFunction);
-        const basicBlock = this.basicBlock = llvm.BasicBlock.Create(this.llvmFunction);
-        builder.SetInsertPoint(basicBlock);
+        builder.SetInsertPoint(llvm.BasicBlock.Create(this.llvmFunction));
         for (let i = 0; i < context.parameterList.length; i++) {
             const variable = builder.CreateAlloca(parameterTypes[i]);
             builder.CreateStore(this.llvmFunction.getArg(i), variable);
@@ -34,11 +29,10 @@ class FunctionDeclaration extends Scope {
     }
     context: FunctionDeclarationContext;
     llvmFunction: llvm.Function;
-    basicBlock: llvm.BasicBlock;
     generate() {
-        builder.SetInsertPoint(this.basicBlock);
+        builder.SetInsertPoint(this.llvmFunction.getLastBasicBlock());
         Statement.Statement(this.context.body, this);
-        if (this.isVoid) builder.CreateRetVoid();
+        if (this.llvmFunction.getType().getReturnType().isVoidTy()) builder.CreateRetVoid();
     }
 }
 export default FunctionDeclaration;

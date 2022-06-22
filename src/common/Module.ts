@@ -2,7 +2,7 @@ import Scope, { Symbols } from './Scope';
 import FunctionDeclaration from './FunctionDeclaration';
 import DeclareDeclaration from './DeclareDeclaration';
 import VariableDeclaration from './VariableDeclaration';
-import ClassDeclaration from './ClassDeclaration';
+import Class from './Class';
 
 class Module extends Scope {
     constructor(id: string, declarations: DeclarationContext[], injectSymbols?: Symbols) {
@@ -26,7 +26,7 @@ class Module extends Scope {
                     break;
                 }
                 case 'ClassDeclaration': {
-                    this.declarations.push(new ClassDeclaration(declarationContext, this));
+                    this.declarations.push(new Class(declarationContext, this));
                     break;
                 }
             }
@@ -36,7 +36,7 @@ class Module extends Scope {
         }
     }
     id: string;
-    declarations: (FunctionDeclaration | DeclareDeclaration | VariableDeclaration | ClassDeclaration)[] = [];
+    declarations: (FunctionDeclaration | DeclareDeclaration | VariableDeclaration | Class)[] = [];
 }
 export interface ModuleMap {
     [key: string]: Module

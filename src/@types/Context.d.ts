@@ -67,7 +67,7 @@ interface ClassMethodContext {
     type: 'ClassMethod',
     identifier: string,
     parameterList: ParameterContext[],
-    typeAnnotation: TypeContext,
+    typeAnnotation?: TypeContext,
     body: BlockStatementContext
 }
 type StatementContext = BlockStatementContext
