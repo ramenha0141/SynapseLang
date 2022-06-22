@@ -183,7 +183,7 @@ export class StoreInst extends Instruction {
     }
 }
 export class GEPInst extends Instruction {
-    constructor(private type: Type, private pointer: Value, private indexList: Value[]) {
+    constructor(type: Type, private pointer: Value, private indexList: Value[]) {
         super(type);
     }
     print(): string {

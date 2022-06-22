@@ -1,17 +1,6 @@
-import Type, { ArrayType, IntegerType, PointerType, TypeID } from './Type';
-import Value from './Value';
+import Type, { ArrayType, IntegerType, PointerType } from './Type';
+import Constant from './Constant';
 
-export class Constant extends Value {
-    static getNullValue(type: Type): Constant {
-        switch (type.getTypeID()) {
-            case TypeID.PointerTyID: return ConstantPointerNull.get(type as PointerType);
-            default: throw new Error();
-        }
-    }
-    public isNullValue(): this is ConstantPointerNull {
-        return this instanceof ConstantPointerNull;
-    }
-}
 export class ConstantInt extends Constant {
     private value: number;
     protected constructor(type: Type, value: number) {

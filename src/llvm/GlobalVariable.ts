@@ -1,4 +1,4 @@
-import { Constant } from './Constants';
+import Constant from './Constant';
 import Type from './Type';
 import Value from './Value';
 

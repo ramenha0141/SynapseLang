@@ -1,3 +1,5 @@
+import Module from './Module';
+
 export enum TypeID {
     HalfTyID,
     BFloatTyID,
@@ -96,10 +98,10 @@ class Type {
             return this.ID === TypeID.IntegerTyID;
         }
     }
-    public isFunctionTy() {
+    public isFunctionTy(): this is FunctionType {
         return this.ID === TypeID.FunctionTyID;
     }
-    public isStructTy() {
+    public isStructTy(): this is StructType {
         return this.ID === TypeID.StructTyID;
     }
     public isArrayTy(): this is ArrayType {
@@ -305,5 +307,23 @@ export class ArrayType extends Type {
     }
     public toString(): string {
         return `[${this.numberOfElements} x ${this.elementType}]`;
+    }
+}
+export class StructType extends Type {
+    private elementTypes: Type[];
+    protected constructor(llvmModule: Module, elementTypes: Type[], private name: string) {
+        super(TypeID.StructTyID);
+        this.elementTypes = elementTypes;
+        llvmModule.addStruct(this);
+    }
+    static get(llvmModule: Module, elementTypes: Type[], name: string): StructType {
+        return new StructType(llvmModule, elementTypes, name);
+    }
+    public getTypeByIndex(index: number): Type {
+        if (this.elementTypes.length <= index) throw new Error();
+        return this.elementTypes[index];
+    }
+    public print(): string {
+        return `%${this.name} = type { ${this.elementTypes.join(', ')} }`;
     }
 }
