@@ -29,7 +29,7 @@ class FunctionDeclaration extends Scope {
         for (let i = 0; i < context.parameterList.length; i++) {
             const variable = builder.CreateAlloca(parameterTypes[i]);
             builder.CreateStore(this.llvmFunction.getArg(i), variable);
-            module.import(context.parameterList[i].identifier, variable);
+            this.import(context.parameterList[i].identifier, variable);
         };
     }
     context: FunctionDeclarationContext;
