@@ -433,9 +433,8 @@ export const CallExpression = (context: CallExpressionContext, scope: Scope, exp
     const args = context.arguments.items.map(arg => Expression(arg, scope));
     return builder.CreateCall(func, args);
 };
-//@ts-expect-error
 export const ThisExpression = (context: ThisExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
-
+    return scope.getThis();
 };
 //@ts-expect-error
 export const SuperExpression = (context: SuperExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
