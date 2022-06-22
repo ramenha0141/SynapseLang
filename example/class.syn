@@ -1,0 +1,7 @@
+class test {
+    i: int;
+    f: float;
+}
+function main() {
+    
+}

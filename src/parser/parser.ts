@@ -253,13 +253,11 @@ ClassDeclaration.setPattern(
             ),
             kmid(
                 tok(TokenKind.OpenBrace),
-                seq(
-                    ClassConstructor,
-                    rep_sc(
-                        alt(
-                            ClassField,
-                            ClassMethod
-                        )
+                rep_sc(
+                    alt(
+                        ClassConstructor,
+                        ClassField,
+                        ClassMethod
                     )
                 ),
                 tok(TokenKind.CloseBrace)
@@ -269,9 +267,9 @@ ClassDeclaration.setPattern(
             type: 'ClassDeclaration',
             identifier: value[0].text,
             extends: value[1],
-            constructor: value[2][0],
-            fields: value[2][1].filter((e): e is ClassFieldContext => e.type === 'ClassField'),
-            methods: value[2][1].filter((e): e is ClassMethodContext => e.type === 'ClassMethod')
+            constructor: value[2].filter((e): e is ClassConstructorContext => e.type === 'ClassConstructor')[0],
+            fields: value[2].filter((e): e is ClassFieldContext => e.type === 'ClassField'),
+            methods: value[2].filter((e): e is ClassMethodContext => e.type === 'ClassMethod')
         })
     )
 );

@@ -49,7 +49,7 @@ interface ClassDeclarationContext {
     type: 'ClassDeclaration',
     identifier: string,
     extends?: IdentifierContext,
-    constructor: ClassConstructorContext,
+    constructor?: ClassConstructorContext,
     fields: ClassFieldContext[],
     methods: ClassMethodContext[]
 }
