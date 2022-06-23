@@ -6,6 +6,7 @@ import Type from './Type';
 
 class Class {
     public readonly struct: llvm.StructType;
+    public readonly Constructor?: [ClassConstructorContext, llvm.Function, Scope];
     public readonly fieldNames: string[] = [];
     public readonly fieldTypes: llvm.Type[] = [];
     public readonly methods: {[key: string]: [ClassMethodContext, llvm.Function, Scope]} = {};
@@ -16,11 +17,31 @@ class Class {
             this.fieldTypes.push(module.getType(field.typeAnnotation.identifier.identifiers));
         }
         this.struct = llvm.StructType.get(llvmModule, this.fieldTypes, `"${module.id}::${context.identifier}"`);
+        const struct_ptr = this.struct.getPointerTo();
         module.import(context.identifier, this);
         classMap.set(this.struct, this);
+        if (context.constructor) {
+            const constructorContext = context.constructor;
+            const parameterTypes = [struct_ptr, ...constructorContext.parameterList.map((parameter) => {
+                if (parameter.typeAnnotation.isVoid) throw new Error();
+                return Type(parameter.typeAnnotation, module);
+            })];
+            const constructorType = llvm.FunctionType.get(llvm.Type.getVoidTy(), parameterTypes, false);
+            const Constructor = llvm.Function.Create(constructorType, `"${module.id}::${context.identifier}#constructor"`, llvmModule);
+            builder.SetInsertPoint(llvm.BasicBlock.Create(Constructor));
+            const constructorScope = new Scope(module);
+            constructorScope.setFunctionContext(Constructor);
+            constructorScope.setThis(Constructor.getArg(0));
+            for (let i = 0; i < constructorContext.parameterList.length; i++) {
+                const variable = builder.CreateAlloca(parameterTypes[i + 1]);
+                builder.CreateStore(Constructor.getArg(i + 1), variable);
+                constructorScope.import(constructorContext.parameterList[i].identifier, variable);
+            }
+            this.Constructor = [constructorContext, Constructor, constructorScope];
+        }
         for (const methodContext of context.methods) {
             const returnType = Type(methodContext.typeAnnotation, module);
-            const parameterTypes = [this.struct.getPointerTo(), ...methodContext.parameterList.map((parameter) => {
+            const parameterTypes = [struct_ptr, ...methodContext.parameterList.map((parameter) => {
                 if (parameter.typeAnnotation.isVoid) throw new Error();
                 return Type(parameter.typeAnnotation, module);
             })];
@@ -32,13 +53,19 @@ class Class {
             methodScope.setThis(method.getArg(0));
             for (let i = 0; i < methodContext.parameterList.length; i++) {
                 const variable = builder.CreateAlloca(parameterTypes[i + 1]);
-                builder.CreateStore(method.getArg(i), variable);
+                builder.CreateStore(method.getArg(i + 1), variable);
                 methodScope.import(methodContext.parameterList[i].identifier, variable);
             }
             this.methods[methodContext.identifier] = [methodContext, method, methodScope];
         }
     }
     public generate() {
+        if (this.Constructor) {
+            const [context, Constructor, scope] = this.Constructor;
+            builder.SetInsertPoint(Constructor.getLastBasicBlock());
+            Statement(context.body, scope);
+            builder.CreateRetVoid();
+        }
         Object.values(this.methods).map(([context, method, scope]) => {
             builder.SetInsertPoint(method.getLastBasicBlock());
             Statement(context.body, scope);

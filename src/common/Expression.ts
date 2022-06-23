@@ -353,9 +353,20 @@ export const NotExpression = (context: NotExpressionContext, scope: Scope, expec
     const condition = Condition(context.expression, scope);
     return builder.CreateICmpNE(condition, llvm.ConstantInt.getFalse(llvm.Type.getInt1Ty()));
 };
-//@ts-expect-error
+let malloc: llvm.Function;
 export const NewExpression = (context: NewExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
-
+    malloc ??= llvm.Function.Create(llvm.FunctionType.get(llvm.Type.getInt8Ty().getPointerTo(), [i32], false), 'malloc', llvmModule);
+    const Class = scope.getClass(context.identifier.identifiers);
+    const struct_ptr = Class.struct.getPointerTo();
+    const size = builder.CreatePtrToInt(builder.CreateGEP(struct_ptr, llvm.ConstantPointerNull.get(struct_ptr), [llvm.ConstantInt.get(i32, 1)]), i32);
+    const address = builder.CreateCall(malloc, [size]);
+    const struct = builder.CreateBitCast(address, struct_ptr);
+    if (Class.Constructor) {
+        const [_, Constructor, scope] = Class.Constructor;
+        const args = context.arguments.items.map((arg, i) => Expression(arg, scope, Constructor.getArg(i + 1).getType()));
+        builder.CreateCall(Constructor, [struct, ...args]);
+    }
+    return struct;
 };
 //@ts-expect-error
 export const DeleteExpression = (context: DeleteExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {

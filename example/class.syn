@@ -1,10 +1,13 @@
 class test {
     i: int;
-    test(): int {
+    constructor(i: int) {
+        this.i = i;
+    }
+    get(): int {
         return this.i;
     }
 }
 function main() {
-    let a: test;
-    a.test();
+    const a: test = new test(1234);
+    console::puti(a.get());
 }
