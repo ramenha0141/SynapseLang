@@ -19,7 +19,7 @@ class FunctionDeclaration extends Scope {
             context.identifier,
             this.llvmFunction = llvm.Function.Create(functionType, `"${module.id}::${context.identifier}"`, llvmModule)
         );
-        module.setFunctionContext(this.llvmFunction);
+        this.setFunctionContext(this.llvmFunction);
         builder.SetInsertPoint(llvm.BasicBlock.Create(this.llvmFunction));
         for (let i = 0; i < context.parameterList.length; i++) {
             const variable = builder.CreateAlloca(parameterTypes[i]);

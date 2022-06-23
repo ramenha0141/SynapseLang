@@ -24,7 +24,7 @@ class Scope {
     }
     getType(identifier: string | string[]): llvm.Type {
         const symbol = this.getSymbol(identifier);
-        if (symbol instanceof Class) return symbol.struct;
+        if (symbol instanceof Class) return symbol.struct.getPointerTo();
         if (!(symbol instanceof llvm.Type)) throw new Error(`${identifier} is not type`);
         return symbol;
     }
@@ -72,7 +72,7 @@ class Scope {
         if (!(symbol instanceof llvm.Value)) throw new Error(`this can only be used within a method`);
         return symbol;
     }
-    import(identifier: string, symbol: llvm.Value | llvm.Function | Module) {
+    import(identifier: string, symbol: llvm.Type | llvm.Value | llvm.Function | Class | Scope) {
         this.symbols[identifier] = symbol;
     }
 }

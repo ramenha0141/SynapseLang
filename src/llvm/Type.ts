@@ -326,4 +326,7 @@ export class StructType extends Type {
     public print(): string {
         return `%${this.name} = type { ${this.elementTypes.join(', ')} }`;
     }
+    public toString(): string {
+        return `%${this.name}`;
+    }
 }

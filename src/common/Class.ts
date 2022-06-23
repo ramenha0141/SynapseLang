@@ -16,9 +16,10 @@ class Class {
             fieldTypes.push(module.getType(field.typeAnnotation.identifier.identifiers));
         }
         this.struct = llvm.StructType.get(llvmModule, fieldTypes, `"${module.id}::${context.identifier}"`);
+        module.import(context.identifier, this);
         for (const methodContext of context.methods) {
             const returnType = Type(methodContext.typeAnnotation, module);
-            const parameterTypes = [this.struct, ...methodContext.parameterList.map((parameter) => {
+            const parameterTypes = [this.struct.getPointerTo(), ...methodContext.parameterList.map((parameter) => {
                 if (parameter.typeAnnotation.isVoid) throw new Error();
                 return Type(parameter.typeAnnotation, module);
             })];
@@ -26,6 +27,7 @@ class Class {
             const method = llvm.Function.Create(methodType, `"${module.id}::${context.identifier}#${methodContext.identifier}"`, llvmModule);
             builder.SetInsertPoint(llvm.BasicBlock.Create(method));
             const methodScope = new Scope(module);
+            methodScope.setFunctionContext(method);
             methodScope.setThis(method.getArg(0));
             for (let i = 0; i < methodContext.parameterList.length; i++) {
                 const variable = builder.CreateAlloca(parameterTypes[i + 1]);
@@ -36,7 +38,7 @@ class Class {
         }
     }
     public generate() {
-        Object.entries(this.methods).map(([identifier, [context, method, scope]]) => {
+        Object.values(this.methods).map(([context, method, scope]) => {
             builder.SetInsertPoint(method.getLastBasicBlock());
             Statement(context.body, scope);
             if (method.getType().getReturnType().isVoidTy()) builder.CreateRetVoid();
