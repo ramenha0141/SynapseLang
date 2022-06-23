@@ -4,9 +4,7 @@
     "description": "",
     "main": "dist/index.js",
     "type": "module",
-    "scripts": {
-        "synac": "node --experimental-specifier-resolution=node ./dist/synac -- --dev"
-    },
+    "scripts": {},
     "author": "",
     "license": "ISC",
     "dependencies": {
