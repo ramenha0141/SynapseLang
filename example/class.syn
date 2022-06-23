@@ -1,13 +1,17 @@
-class test {
-    i: int;
-    constructor(i: int) {
-        this.i = i;
+class A {
+    value: int;
+    constructor(initial_value: int) {
+        this.value = initial_value;
+    }
+    add(value: int) {
+        this.value = this.value + value;
     }
     get(): int {
-        return this.i;
+        return this.value;
     }
 }
 function main() {
-    const a: test = new test(1234);
+    const a: A = new A(2);
+    a.add(3);
     console::puti(a.get());
 }
