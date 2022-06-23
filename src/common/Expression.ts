@@ -4,6 +4,7 @@ import Scope from './Scope';
 import Condition from './Condition';
 
 const i32 = llvm.Type.getInt32Ty();
+const i8_ptr = llvm.Type.getInt8Ty().getPointerTo();
 
 const Reference = (context: ExpressionContext, scope: Scope): llvm.Value | [llvm.Function, llvm.Value] => {
     switch (context.type) {
@@ -34,7 +35,7 @@ const MemberReference = (context: MemberExpressionContext, scope: Scope): llvm.V
     if (!Class) throw new Error();
     if (Class.fieldNames.includes(context.identifier)) {
         const fieldIndex = Class.fieldNames.indexOf(context.identifier);
-        return builder.CreateGEP(Class.fieldTypes[fieldIndex].getPointerTo(), reference, [llvm.ConstantInt.get(i32, 0), llvm.ConstantInt.get(i32, fieldIndex)]);
+        return builder.CreateGEP(Class.fieldTypes[fieldIndex].getPointerTo(), struct, [llvm.ConstantInt.get(i32, 0), llvm.ConstantInt.get(i32, fieldIndex)]);
     } else if (Class.methods[context.identifier]) {
         return [Class.methods[context.identifier][1], struct];
     } else {
@@ -355,7 +356,7 @@ export const NotExpression = (context: NotExpressionContext, scope: Scope, expec
 };
 let malloc: llvm.Function;
 export const NewExpression = (context: NewExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
-    malloc ??= llvm.Function.Create(llvm.FunctionType.get(llvm.Type.getInt8Ty().getPointerTo(), [i32], false), 'malloc', llvmModule);
+    malloc ??= llvm.Function.Create(llvm.FunctionType.get(i8_ptr, [i32], false), 'malloc', llvmModule);
     const Class = scope.getClass(context.identifier.identifiers);
     const struct_ptr = Class.struct.getPointerTo();
     const size = builder.CreatePtrToInt(builder.CreateGEP(struct_ptr, llvm.ConstantPointerNull.get(struct_ptr), [llvm.ConstantInt.get(i32, 1)]), i32);
@@ -368,9 +369,12 @@ export const NewExpression = (context: NewExpressionContext, scope: Scope, expec
     }
     return struct;
 };
-//@ts-expect-error
+let free: llvm.Function;
 export const DeleteExpression = (context: DeleteExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
-
+    free ??= llvm.Function.Create(llvm.FunctionType.get(llvm.Type.getVoidTy(), [i8_ptr], false), 'free', llvmModule);
+    const expression = Expression(context.expression, scope);
+    builder.CreateCall(free, [builder.CreateBitCast(expression, i8_ptr)]);
+    return llvm.ConstantInt.getTrue(expectedType ?? i32);
 };
 const isPointerTy = (type: llvm.Type): type is llvm.PointerType => type.isPointerTy();
 export const SizeofExpression = (context: SizeofExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
