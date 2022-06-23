@@ -1,6 +1,8 @@
-import type { Module, IRBuilder } from '../llvm';
+import Class from '../common/Class';
+import type * as llvm from '../llvm';
 declare global {
     var dev: boolean;
-    var llvmModule: Module;
-    var builder: IRBuilder;
+    var llvmModule: llvm.Module;
+    var builder: llvm.IRBuilder;
+    var classMap: Map<llvm.StructType, Class>
 }

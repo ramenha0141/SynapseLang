@@ -6,17 +6,18 @@ import Type from './Type';
 
 class Class {
     public readonly struct: llvm.StructType;
-    private fieldNames: string[] = [];
-    private methods: {[key: string]: [ClassMethodContext, llvm.Function, Scope]} = {};
+    public readonly fieldNames: string[] = [];
+    public readonly fieldTypes: llvm.Type[] = [];
+    public readonly methods: {[key: string]: [ClassMethodContext, llvm.Function, Scope]} = {};
     constructor(private context: ClassDeclarationContext, module: Module) {
-        const fieldTypes: llvm.Type[] = [];
         for (const field of context.fields) {
             if (field.typeAnnotation.isVoid) throw new Error();
             this.fieldNames.push(field.identifier);
-            fieldTypes.push(module.getType(field.typeAnnotation.identifier.identifiers));
+            this.fieldTypes.push(module.getType(field.typeAnnotation.identifier.identifiers));
         }
-        this.struct = llvm.StructType.get(llvmModule, fieldTypes, `"${module.id}::${context.identifier}"`);
+        this.struct = llvm.StructType.get(llvmModule, this.fieldTypes, `"${module.id}::${context.identifier}"`);
         module.import(context.identifier, this);
+        classMap.set(this.struct, this);
         for (const methodContext of context.methods) {
             const returnType = Type(methodContext.typeAnnotation, module);
             const parameterTypes = [this.struct.getPointerTo(), ...methodContext.parameterList.map((parameter) => {

@@ -1,7 +1,10 @@
 class test {
     i: int;
-    f: float;
+    test(): int {
+        return this.i;
+    }
 }
 function main() {
-    
+    let a: test;
+    a.test();
 }

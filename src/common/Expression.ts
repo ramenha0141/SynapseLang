@@ -5,25 +5,45 @@ import Condition from './Condition';
 
 const i32 = llvm.Type.getInt32Ty();
 
-const Reference = (context: ExpressionContext, scope: Scope): llvm.Value => {
+const Reference = (context: ExpressionContext, scope: Scope): llvm.Value | [llvm.Function, llvm.Value] => {
     switch (context.type) {
         case 'IndexExpression': return IndexReference(context, scope);
         case 'MemberExpression': return MemberReference(context, scope);
+        case 'ThisExpression': return ThisReference(context, scope);
         case 'Identifier': return IdentifierReference(context, scope);
         default: throw new Error();
     }
 };
 const IndexReference = (context: IndexExpressionContext, scope: Scope): llvm.Value => {
     const reference = Reference(context.expression, scope);
+    if (Array.isArray(reference)) throw new Error();
     const index = Expression(context.index, scope, i32);
     const arrayType = reference.getType().getPointerElementType();
     if (!arrayType.isArrayTy()) throw new Error();
     return builder.CreateGEP(arrayType.getElementType().getPointerTo(), reference, [llvm.ConstantInt.get(i32, 0), index]);
 };
-//@ts-expect-error
-const MemberReference = (context: MemberExpressionContext, scope: Scope): llvm.Value => {
+const MemberReference = (context: MemberExpressionContext, scope: Scope): llvm.Value | [llvm.Function, llvm.Value] => {
     const reference = Reference(context.expression, scope);
+    if (Array.isArray(reference)) throw new Error();
+    const struct = reference.getType().getPointerElementType().isStructTy()
+        ? reference
+        : builder.CreateLoad(reference.getType().getPointerElementType(), reference);
+    const structType = struct.getType().getPointerElementType();
+    if (!structType.isStructTy()) throw new Error();
+    const Class = classMap.get(structType);
+    if (!Class) throw new Error();
+    if (Class.fieldNames.includes(context.identifier)) {
+        const fieldIndex = Class.fieldNames.indexOf(context.identifier);
+        return builder.CreateGEP(Class.fieldTypes[fieldIndex].getPointerTo(), reference, [llvm.ConstantInt.get(i32, 0), llvm.ConstantInt.get(i32, fieldIndex)]);
+    } else if (Class.methods[context.identifier]) {
+        return [Class.methods[context.identifier][1], struct];
+    } else {
+        throw new Error();
+    }
 };
+const ThisReference = (context: ThisExpressionContext, scope: Scope): llvm.Value => {
+    return scope.getThis();
+}
 const IdentifierReference = (context: IdentifierContext, scope: Scope): llvm.Value => {
     return scope.getVariable(context.identifiers);
 };
@@ -70,6 +90,7 @@ export const Expression = (context: ExpressionContext, scope: Scope, expectedTyp
 };
 export const AssignmentExpression = (context: AssignmentExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
     const variable = Reference(context.left, scope);
+    if (Array.isArray(variable)) throw new Error();
     const expression = Expression(context.right, scope, variable.getType().getPointerElementType());
     switch (context.operator) {
         case '=': {
@@ -357,6 +378,7 @@ export const SizeofExpression = (context: SizeofExpressionContext, scope: Scope,
 };
 export const PreIncrementExpression = (context: PreIncrementExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
     const variable = Reference(context.expression, scope);
+    if (Array.isArray(variable)) throw new Error();
     const type = variable.getType().getPointerElementType();
     const value = builder.CreateLoad(type, variable);
     if (type.isIntegerTy()) {
@@ -373,6 +395,7 @@ export const PreIncrementExpression = (context: PreIncrementExpressionContext, s
 };
 export const PreDecrementExpression = (context: PreDecrementExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
     const variable = Reference(context.expression, scope);
+    if (Array.isArray(variable)) throw new Error();
     const type = variable.getType().getPointerElementType();
     const value = builder.CreateLoad(type, variable);
     if (type.isIntegerTy()) {
@@ -389,6 +412,7 @@ export const PreDecrementExpression = (context: PreDecrementExpressionContext, s
 };
 export const PostIncrementExpression = (context: PostIncrementExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
     const variable = Reference(context.expression, scope);
+    if (Array.isArray(variable)) throw new Error();
     const type = variable.getType().getPointerElementType();
     const value = builder.CreateLoad(type, variable);
     if (type.isIntegerTy()) {
@@ -405,6 +429,7 @@ export const PostIncrementExpression = (context: PostIncrementExpressionContext,
 };
 export const PostDecrementExpression = (context: PostDecrementExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
     const variable = Reference(context.expression, scope);
+    if (Array.isArray(variable)) throw new Error();
     const type = variable.getType().getPointerElementType();
     const value = builder.CreateLoad(type, variable);
     if (type.isIntegerTy()) {
@@ -425,16 +450,26 @@ export const IndexExpression = (context: IndexExpressionContext, scope: Scope, e
 };
 export const MemberExpression = (context: MemberExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
     const variable = MemberReference(context, scope);
+    if (Array.isArray(variable)) throw new Error();
     return builder.CreateLoad(variable.getType().getPointerElementType(), variable);
 };
 export const CallExpression = (context: CallExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
     const func = Reference(context.expression, scope);
-    if (!(func instanceof llvm.Function)) throw new Error();
-    const args = context.arguments.items.map(arg => Expression(arg, scope));
-    return builder.CreateCall(func, args);
+    if (!(func instanceof llvm.Function) && !Array.isArray(func)) throw new Error();
+    if (Array.isArray(func)) {
+        const method = func[0];
+        const This = func[1];
+        const argTypes = method.getType().getParamTypes().slice(1);
+        const args = [This, ...context.arguments.items.map((arg, i) => Expression(arg, scope, argTypes[i]))];
+        return builder.CreateCall(method, args);
+    } else {
+        const argTypes = func.getType().getParamTypes();
+        const args = context.arguments.items.map((arg, i) => Expression(arg, scope, argTypes[i]));
+        return builder.CreateCall(func, args);
+    }
 };
 export const ThisExpression = (context: ThisExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
-    return scope.getThis();
+    return ThisReference(context, scope);
 };
 //@ts-expect-error
 export const SuperExpression = (context: SuperExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {

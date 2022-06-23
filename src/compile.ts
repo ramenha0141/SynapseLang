@@ -17,6 +17,7 @@ const compile = (options: CompilerOptions) => {
     const moduleMap: ModuleMap = {};
     global.llvmModule = new llvm.Module(entryPath);
     global.builder = new llvm.IRBuilder();
+    global.classMap = new Map();
     const loadModule = (modulePath: string, isBuiltin?: boolean) => {
         const source = fs.readFileSync(
             isBuiltin
