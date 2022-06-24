@@ -283,7 +283,6 @@ export const MultiplicativeExpression = (context: MultiplicativeExpressionContex
     throw new Error();
 };
 export const AssertionExpression = (context: AssertionExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
-    // Unexpected void
     if (context.typeAnnotation.isVoid) throw SynacTypeError.unexpectedVoidError(context.typeAnnotation.position);
     const expression = Expression(context.expression, scope);
     const fromType = expression.getType();
