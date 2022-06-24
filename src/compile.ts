@@ -70,8 +70,15 @@ const compile = (options: CompilerOptions) => {
     } else {
         const tmpFile = tmp.fileSync({ postfix: '.ll' });
         fs.writeFileSync(tmpFile.name, IR);
-        child_process.execSync(`clang ${tmpFile.name} -o ${options.outputPath ?? `${path.basename(options.filePath ?? 'a', '.syn')}${process.platform === 'win32' ? '.exe': ''}`}`);
-        tmpFile.removeCallback();
+        child_process.execFile('clang', [
+            tmpFile.name,
+            '-o', options.outputPath ?? `${path.basename(options.filePath ?? 'a', '.syn')}${process.platform === 'win32' ? '.exe': ''}`
+        ], (error, stdout, stderr) => {
+            tmpFile.removeCallback();
+            if (error) return console.log(error);
+            if (/^warning: overriding the module target triple/.test(stderr)) return;
+            console.log(stderr);
+        });
     }
 
 };
