@@ -9,7 +9,9 @@ class FunctionDeclaration extends Scope {
     constructor(context: FunctionDeclarationContext, module: Module) {
         super(module);
         this.context = context;
-        const returnType = Type(context.typeAnnotation, module);
+        const returnType = context.typeAnnotation
+            ? Type(context.typeAnnotation, module)
+            : llvm.Type.getVoidTy();
         const parameterTypes = context.parameterList.map((parameter) => {
             if (parameter.typeAnnotation.isVoid) throw new Error();
             return Type(parameter.typeAnnotation, module);

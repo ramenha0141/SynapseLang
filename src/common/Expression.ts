@@ -18,10 +18,12 @@ const Reference = (context: ExpressionContext, scope: Scope): llvm.Value | [llvm
 const IndexReference = (context: IndexExpressionContext, scope: Scope): llvm.Value => {
     const reference = Reference(context.expression, scope);
     if (Array.isArray(reference)) throw new Error();
+    if (!reference.getType().isPointerTy()) throw new Error();
+    const array = builder.CreateLoad(reference.getType().getPointerElementType(), reference);
     const index = Expression(context.index, scope, i32);
-    const arrayType = reference.getType().getPointerElementType();
+    const arrayType = array.getType().getPointerElementType();
     if (!arrayType.isArrayTy()) throw new Error();
-    return builder.CreateGEP(arrayType.getElementType().getPointerTo(), reference, [llvm.ConstantInt.get(i32, 0), index]);
+    return builder.CreateGEP(arrayType.getElementType().getPointerTo(), array, [llvm.ConstantInt.get(i32, 0), index]);
 };
 const MemberReference = (context: MemberExpressionContext, scope: Scope): llvm.Value | [llvm.Function, llvm.Value] => {
     const reference = Reference(context.expression, scope);
@@ -525,9 +527,12 @@ export const NumberLiteral = (context: NumberLiteralContext, scope: Scope, expec
         }
     }
 };
-//@ts-expect-error
 export const ArrayLiteral = (context: ArrayLiteralContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
-
+    malloc ??= llvm.Function.Create(llvm.FunctionType.get(i8_ptr, [i32], false), 'malloc', llvmModule);
+    if (!expectedType || !expectedType.isPointerTy()) throw new Error();
+    const size = builder.CreatePtrToInt(builder.CreateGEP(expectedType, llvm.ConstantPointerNull.get(expectedType), [llvm.ConstantInt.get(i32, 1)]), i32);
+    const address = builder.CreateCall(malloc, [size]);
+    return builder.CreateBitCast(address, expectedType);
 };
 export const Identifier = (context: IdentifierContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
     const variable = IdentifierReference(context, scope);

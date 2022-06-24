@@ -1,5 +1,5 @@
 function main() {
-    let sieve: boolean[100];
+    const sieve: boolean[100] = [];
     sieve[0] = sieve[1] = false;
     for (let i = 2; i < 100; i++) {
         sieve[i] = true;

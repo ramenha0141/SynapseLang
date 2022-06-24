@@ -31,7 +31,7 @@ export const VariableDeclaration = (context: VariableDeclarationContext, scope: 
     if (!context.expression && context.isConstant) throw new Error();
     // Type annotation or expression are required
     if (!context.expression && !context.typeAnnotation) throw new Error();
-    const typeAnnotation = Type(context.typeAnnotation, scope);
+    const typeAnnotation = context.typeAnnotation && Type(context.typeAnnotation, scope);
     const expression = context.expression && Expression.Expression(context.expression, scope, typeAnnotation);
     // Type conflict between type annotation and expression
     if (expression && typeAnnotation && expression?.getType().getTypeID() !== typeAnnotation.getTypeID()) throw new Error();

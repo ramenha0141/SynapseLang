@@ -8,6 +8,7 @@ const Type = (context: TypeContext | undefined, scope: Scope): llvm.Type => {
     while(dimensions.length > 0) {
         type = llvm.ArrayType.get(type, dimensions.pop()!);
     }
+    if (type.isArrayTy()) type = type.getPointerTo();
     return type;
 };
 export default Type;
