@@ -4,5 +4,7 @@ declare global {
     var dev: boolean;
     var llvmModule: llvm.Module;
     var builder: llvm.IRBuilder;
-    var classMap: Map<llvm.StructType, Class>
+    var classMap: Map<llvm.StructType, Class>;
+    var currentPath: string;
+    var sourceMap: Map<string, string[]>;
 }

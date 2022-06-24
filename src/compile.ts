@@ -18,13 +18,16 @@ const compile = (options: CompilerOptions) => {
     global.llvmModule = new llvm.Module(entryPath);
     global.builder = new llvm.IRBuilder();
     global.classMap = new Map();
+    global.sourceMap = new Map();
     const loadModule = (modulePath: string, isBuiltin?: boolean) => {
-        const source = fs.readFileSync(
-            isBuiltin
+        global.currentPath = isBuiltin
                 ? path.join(builtinsPath, modulePath + '.syn')
-                : path.join(rootDir, modulePath),
+                : path.join(rootDir, modulePath);
+        const source = fs.readFileSync(
+            currentPath,
             'utf-8'
         );
+        global.sourceMap.set(global.currentPath, source.split('\n'));
         const moduleContext = parser(source);
         const module = new Module(modulePath, moduleContext.declarations, builtins(llvmModule));
         for (const importContext of moduleContext.importDeclarations) {
