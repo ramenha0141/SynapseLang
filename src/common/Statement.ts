@@ -26,13 +26,13 @@ export const BlockStatement = (context: BlockStatementContext, scope: Scope, inj
     return blockScope;
 };
 export const VariableDeclaration = (context: VariableDeclarationContext, scope: Scope) => {
-    if (context.typeAnnotation?.isVoid) throw SynacTypeError.unexpectedVoidError(context.position);
-    if (!context.expression && context.isConstant) throw new SynacSyntaxError('Constant variable requires assignment', context.position);
-    if (!context.expression && !context.typeAnnotation) throw new SynacSyntaxError('Requires type annotation or expression', context.position);
+    if (context.typeAnnotation?.isVoid) throw SynacTypeError.unexpectedVoidError(context.range);
+    if (!context.expression && context.isConstant) throw new SynacSyntaxError('Constant variable requires assignment', context.range);
+    if (!context.expression && !context.typeAnnotation) throw new SynacSyntaxError('Requires type annotation or expression', context.range);
     const typeAnnotation = context.typeAnnotation && Type(context.typeAnnotation, scope);
     const expression = context.expression && Expression.Expression(context.expression, scope, typeAnnotation);
     // Type conflict between type annotation and expression
-    if (expression && typeAnnotation && expression?.getType().getTypeID() !== typeAnnotation.getTypeID()) throw new SynacTypeError('Type conflict between type annotation and expression', context.position);
+    if (expression && typeAnnotation && expression?.getType().getTypeID() !== typeAnnotation.getTypeID()) throw new SynacTypeError('Type conflict between type annotation and expression', context.range);
     // dev
     if (dev) builder.CreateComment(`${context.isConstant ? 'const' : 'let'} ${context.identifier}`);
     const variable = builder.CreateAlloca(typeAnnotation ?? expression?.getType() ?? llvm.Type.getInt32Ty());

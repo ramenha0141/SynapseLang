@@ -1,4 +1,5 @@
 import { alt, apply, kleft, kmid, kright, list_sc, lrec_sc, opt, rep_sc, rule, seq, tok } from 'typescript-parsec';
+import applyRange, { Range } from './applyRange.js';
 import TokenKind from './TokenKind.js';
 const Module = rule<TokenKind, ModuleContext>();
 const ImportDeclaration = rule<TokenKind, ImportDeclarationContext>();
@@ -73,16 +74,16 @@ const TypeAnnotation = rule<TokenKind, TypeContext>();
 const Identifier = rule<TokenKind, IdentifierContext>();
 const eos = tok(TokenKind.SemiColon);
 Module.setPattern(
-    apply(
+    applyRange(
         seq(
             rep_sc(ImportDeclaration),
             rep_sc(Declaration)
         ),
-        (value, [token]) => ({
+        (value, range) => ({
             type: 'Module',
             importDeclarations: value[0],
             declarations: value[1],
-            position: token!.pos
+            range
         })
     )
 );
@@ -90,7 +91,7 @@ ImportDeclaration.setPattern(
     alt(ImportDefineDeclaration, ImportNamespaceDeclaration, ImportBuiltinDeclaration)
 );
 ImportDefineDeclaration.setPattern(
-    apply(
+    applyRange(
         seq(
             kmid(
                 tok(TokenKind.Import),
@@ -109,15 +110,15 @@ ImportDefineDeclaration.setPattern(
                 eos
             )
         ),
-        (value, [token]) => ({
+        (value, range) => ({
             type: 'ImportDefineDeclaration',
             defines: value[0].map(e => e.text),
             path: value[1].text.slice(1, -1),
-            position: token!.pos
+            range
         }))
 );
 ImportNamespaceDeclaration.setPattern(
-    apply(
+    applyRange(
         seq(
             kmid(
                 tok(TokenKind.Import),
@@ -129,25 +130,25 @@ ImportNamespaceDeclaration.setPattern(
                 eos
             )
         ),
-        (value, [token]) => ({
+        (value, range) => ({
             type: 'ImportNamespaceDeclaration',
             identifier: value[0].text,
             path: value[1].text.slice(1, -1),
-            position: token!.pos
+            range
         })
     )
 );
 ImportBuiltinDeclaration.setPattern(
-    apply(
+    applyRange(
         kmid(
             tok(TokenKind.Import),
             tok(TokenKind.Identifier),
             eos
         ),
-        (value, [token]) => ({
+        (value, range) => ({
             type: 'ImportBuiltinDeclaration',
             identifier: value.text,
-            position: token!.pos
+            range
         })
     )
 );
@@ -155,7 +156,7 @@ Declaration.setPattern(
     alt(FunctionDeclaration, DeclareDeclaration, VariableDeclaration, ClassDeclaration)
 );
 FunctionDeclaration.setPattern(
-    apply(
+    applyRange(
         seq(
             kright(
                 tok(TokenKind.Function),
@@ -171,18 +172,18 @@ FunctionDeclaration.setPattern(
             ),
             BlockStatement
         ),
-        (value, [token]) => ({
+        (value, range) => ({
             type: 'FunctionDeclaration',
             identifier: value[0].text,
             parameterList: value[1],
             typeAnnotation: value[2],
             body: value[3],
-            position: token!.pos
+            range
         })
     )
 );
 DeclareDeclaration.setPattern(
-    apply(
+    applyRange(
         seq(
             kright(
                 tok(TokenKind.Declare),
@@ -204,18 +205,18 @@ DeclareDeclaration.setPattern(
             ),
             TypeAnnotation
         ),
-        (value, [token]) => ({
+        (value, range) => ({
             type: 'DeclareDeclaration',
             identifier: value[0].join('.'),
             alias: value[1]?.text,
             parameters: value[2],
             typeAnnotation: value[3],
-            position: token!.pos
+            range
         })
     )
 );
 VariableDeclaration.setPattern(
-    apply(
+    applyRange(
         seq(
             alt(
                 tok(TokenKind.Let),
@@ -235,18 +236,18 @@ VariableDeclaration.setPattern(
                 eos
             )
         ),
-        (value, [token]) => ({
+        (value, range) => ({
             type: 'VariableDeclaration',
             isConstant: value[0].kind === TokenKind.Const,
             identifier: value[1].text,
             typeAnnotation: value[2],
             expression: value[3],
-            position: token!.pos
+            range
         })
     )
 );
 ClassDeclaration.setPattern(
-    apply(
+    applyRange(
         seq(
             kright(
                 tok(TokenKind.Class),
@@ -270,19 +271,19 @@ ClassDeclaration.setPattern(
                 tok(TokenKind.CloseBrace)
             )
         ),
-        (value, [token]) => ({
+        (value, range) => ({
             type: 'ClassDeclaration',
             identifier: value[0].text,
             extends: value[1],
             constructor: value[2].filter((e): e is ClassConstructorContext => e.type === 'ClassConstructor')[0],
             fields: value[2].filter((e): e is ClassFieldContext => e.type === 'ClassField'),
             methods: value[2].filter((e): e is ClassMethodContext => e.type === 'ClassMethod'),
-            position: token!.pos
+            range
         })
     )
 );
 ClassConstructor.setPattern(
-    apply(
+    applyRange(
         seq(
             kright(
                 tok(TokenKind.Constructor),
@@ -294,16 +295,16 @@ ClassConstructor.setPattern(
             ),
             BlockStatement
         ),
-        (value, [token]) => ({
+        (value, range) => ({
             type: 'ClassConstructor',
             parameterList: value[0],
             body: value[1],
-            position: token!.pos
+            range
         })
     )
 );
 ClassField.setPattern(
-    apply(
+    applyRange(
         seq(
             tok(TokenKind.Identifier),
             kleft(
@@ -311,16 +312,16 @@ ClassField.setPattern(
                 eos
             )
         ),
-        (value, [token]) => ({
+        (value, range) => ({
             type: 'ClassField',
             identifier: value[0].text,
             typeAnnotation: value[1],
-            position: token!.pos
+            range
         })
     )
 );
 ClassMethod.setPattern(
-    apply(
+    applyRange(
         seq(
             tok(TokenKind.Identifier),
             kmid(
@@ -333,13 +334,13 @@ ClassMethod.setPattern(
             ),
             BlockStatement
         ),
-        (value, [token]) => ({
+        (value, range) => ({
             type: 'ClassMethod',
             identifier: value[0].text,
             parameterList: value[1],
             typeAnnotation: value[3] && value[2],
             body: value[3] ?? value[2],
-            position: token!.pos
+            range
         })
     )
 );
@@ -357,7 +358,7 @@ Statement.setPattern(
     )
 );
 BlockStatement.setPattern(
-    apply(
+    applyRange(
         kmid(
             tok(TokenKind.OpenBrace),
             rep_sc(
@@ -365,28 +366,28 @@ BlockStatement.setPattern(
             ),
             tok(TokenKind.CloseBrace)
         ),
-        (value, [token]) => ({
+        (value, range) => ({
             type: 'BlockStatement',
             statements: value,
-            position: token!.pos
+            range
         })
     )
 );
 ExpressionStatement.setPattern(
-    apply(
+    applyRange(
         kleft(
             Expression,
             eos
         ),
-        (value, [token]) => ({
+        (value, range) => ({
             type: 'ExpressionStatement',
             expression: value,
-            position: token!.pos
+            range
         })
     )
 );
 ReturnStatement.setPattern(
-    apply(
+    applyRange(
         kmid(
             tok(TokenKind.Return),
             opt(
@@ -394,15 +395,15 @@ ReturnStatement.setPattern(
             ),
             eos
         ),
-        (value, [token]) => ({
+        (value, range) => ({
             type: 'ReturnStatement',
             expression: value,
-            position: token!.pos
+            range
         })
     )
 );
 IfStatement.setPattern(
-    apply(
+    applyRange(
         seq(
             kright(
                 tok(TokenKind.If),
@@ -420,17 +421,17 @@ IfStatement.setPattern(
                 )
             )
         ),
-        (value, [token]) => ({
+        (value, range) => ({
             type: 'IfStatement',
             condition: value[0],
             then: value[1],
             else: value[2],
-            position: token!.pos
+            range
         })
     )
 );
 WhileStatement.setPattern(
-    apply(
+    applyRange(
         seq(
             kright(
                 tok(TokenKind.While),
@@ -442,11 +443,11 @@ WhileStatement.setPattern(
             ),
             Statement
         ),
-        (value, [token]) => ({
+        (value, range) => ({
             type: 'WhileStatement',
             condition: value[0],
             then: value[1],
-            position: token!.pos
+            range
         })
     )
 );
@@ -457,7 +458,7 @@ ForStatement.setPattern(
     )
 );
 ForNormalStatement.setPattern(
-    apply(
+    applyRange(
         seq(
             kright(
                 tok(TokenKind.For),
@@ -476,18 +477,18 @@ ForNormalStatement.setPattern(
             ),
             Statement
         ),
-        (value, [token]) => ({
+        (value, range) => ({
             type: 'ForNormalStatement',
             initialization: value[0][0],
             condition: value[0][1],
             final: value[0][2],
             then: value[1],
-            position: token!.pos
+            range
         })
     )
 );
 ForInStatement.setPattern(
-    apply(
+    applyRange(
         seq(
             kright(
                 tok(TokenKind.For),
@@ -505,36 +506,36 @@ ForInStatement.setPattern(
             ),
             Statement
         ),
-        (value, [token]) => ({
+        (value, range) => ({
             type: 'ForInStatement',
             identifier: value[0][0].text,
             expression: value[0][1],
             then: value[1],
-            position: token!.pos
+            range
         })
     )
 );
 BreakStatement.setPattern(
-    apply(
+    applyRange(
         seq(
             tok(TokenKind.Break),
             eos
         ),
-        (value, [token]) => ({
+        (value, range) => ({
             type: 'BreakStatement',
-            position: token!.pos
+            range
         })
     )
 );
 ContinueStatement.setPattern(
-    apply(
+    applyRange(
         seq(
             tok(TokenKind.Continue),
             eos
         ),
-        (value, [token]) => ({
+        (value, range) => ({
             type: 'ContinueStatement',
-            position: token!.pos
+            range
         })
     )
 );
@@ -542,7 +543,7 @@ Expression.setPattern(
     AssignmentExpression
 );
 AssignmentExpression.setPattern(
-    apply(
+    applyRange(
         seq(
             TernaryExpression,
             opt(
@@ -559,17 +560,17 @@ AssignmentExpression.setPattern(
                 )
             )
         ),
-        (value, [token]) => (value[1] ? {
+        (value, range) => (value[1] ? {
             type: 'AssignmentExpression',
             left: value[0],
             operator: value[1][0].text as '=' | '*=' | '/=' | '%=' | '+=' | '-=',
             right: value[1][1],
-            position: token!.pos
+            range
         } : value[0])
     )
 );
 TernaryExpression.setPattern(
-    apply(
+    applyRange(
         seq(
             LogicalOrExpression,
             opt(
@@ -585,12 +586,12 @@ TernaryExpression.setPattern(
                 )
             )
         ),
-        (value, [token]) => (value[1] ? {
+        (value, range) => (value[1] ? {
             type: 'TernaryExpression',
             condition: value[0],
             then: value[1][0],
             else: value[1][0],
-            position: token!.pos
+            range
         } : value[0])
     )
 );
@@ -787,59 +788,59 @@ UnaryExpression.setPattern(
     )
 );
 UnaryPlusExpression.setPattern(
-    apply(
+    applyRange(
         kright(
             tok(TokenKind.Plus),
             UnaryExpression
         ),
-        (value, [token]) => ({
+        (value, range) => ({
             type: 'UnaryPlusExpression',
             expression: value,
-            position: token!.pos
+            range
         })
     )
 );
 UnaryMinusExpression.setPattern(
-    apply(
+    applyRange(
         kright(
             tok(TokenKind.Minus),
             UnaryExpression
         ),
-        (value, [token]) => ({
+        (value, range) => ({
             type: 'UnaryMinusExpression',
             expression: value,
-            position: token!.pos
+            range
         })
     )
 );
 BitNotExpression.setPattern(
-    apply(
+    applyRange(
         kright(
             tok(TokenKind.BitNot),
             UnaryExpression
         ),
-        (value, [token]) => ({
+        (value, range) => ({
             type: 'BitNotExpression',
             expression: value,
-            position: token!.pos
+            range
         })
     )
 );
 NotExpression.setPattern(
-    apply(
+    applyRange(
         kright(
             tok(TokenKind.Not),
             UnaryExpression
         ),
-        (value, [token]) => ({
+        (value, range) => ({
             type: 'NotExpression',
             expression: value,
-            position: token!.pos
+            range
         })
     )
 );
 NewExpression.setPattern(
-    apply(
+    applyRange(
         seq(
             kright(
                 tok(TokenKind.New),
@@ -847,37 +848,37 @@ NewExpression.setPattern(
             ),
             Arguments
         ),
-        (value, [token]) => ({
+        (value, range) => ({
             type: 'NewExpression',
             identifier: value[0],
             arguments: value[1],
-            position: token!.pos
+            range
         })
     )
 );
 DeleteExpression.setPattern(
-    apply(
+    applyRange(
         kright(
             tok(TokenKind.Delete),
             UnaryExpression
         ),
-        (value, [token]) => ({
+        (value, range) => ({
             type: 'DeleteExpression',
             expression: value,
-            position: token!.pos
+            range
         })
     )
 );
 SizeofExpression.setPattern(
-    apply(
+    applyRange(
         kright(
             tok(TokenKind.Sizeof),
             Type
         ),
-        (value, [token]) => ({
+        (value, range) => ({
             type: 'SizeofExpression',
             typeAnnotation: value,
-            position: token!.pos
+            range
         })
     )
 );
@@ -891,136 +892,142 @@ UpdateExpression.setPattern(
     )
 );
 PostIncrementExpression.setPattern(
-    apply(
+    applyRange(
         kleft(
             PostfixExpression,
             tok(TokenKind.PlusPlus)
         ),
-        (value, [token]) => ({
+        (value, range) => ({
             type: 'PostIncrementExpression',
             expression: value,
-            position: token!.pos
+            range
         })
     )
 );
 PostDecrementExpression.setPattern(
-    apply(
+    applyRange(
         kleft(
             PostfixExpression,
             tok(TokenKind.MinusMinus)
         ),
-        (value, [token]) => ({
+        (value, range) => ({
             type: 'PostDecrementExpression',
             expression: value,
-            position: token!.pos
+            range
         })
     )
 );
 PreIncrementExpression.setPattern(
-    apply(
+    applyRange(
         kright(
             tok(TokenKind.PlusPlus),
             PostfixExpression
         ),
-        (value, [token]) => ({
+        (value, range) => ({
             type: 'PreIncrementExpression',
             expression: value,
-            position: token!.pos
+            range
         })
     )
 );
 PreDecrementExpression.setPattern(
-    apply(
+    applyRange(
         kright(
             tok(TokenKind.MinusMinus),
             PostfixExpression
         ),
-        (value, [token]) => ({
+        (value, range) => ({
             type: 'PreDecrementExpression',
             expression: value,
-            position: token!.pos
+            range
         })
     )
 );
 interface IndexExpressionPostfixPart {
     type: 'IndexExpressionPostfixPart',
     index: ExpressionContext,
-    position: Position
+    range: Range
 }
 interface MemberExpressionPostfixPart {
     type: 'MemberExpressionPostfixPart',
     identifier: string,
-    position: Position
+    range: Range
 }
 interface CallExpressionPostfixPart {
     type: 'CallExpressionPostfixPart',
     arguments: ArgumentsContext,
-    position: Position
+    range: Range
 }
 PostfixExpression.setPattern(
     lrec_sc(
         PrimaryExpression,
-        alt(
-            IndexExpression,
-            MemberExpression,
-            CallExpression
+        applyRange(
+            alt(
+                IndexExpression,
+                MemberExpression,
+                CallExpression
+            ),
+            (value, range) => ({
+                value,
+                range
+            })
         ),
         (a, b) => (b ? (
-            b.type === 'IndexExpressionPostfixPart'
+            b.value.type === 'IndexExpressionPostfixPart'
                 ? {
                     type: 'IndexExpression',
                     expression: a,
-                    index: b.index,
-                    position: b.position
-                } : b.type === 'MemberExpressionPostfixPart'
+                    index: b.value.index,
+                    range: b.range
+                } : b.value.type === 'MemberExpressionPostfixPart'
                     ? {
                         type: 'MemberExpression',
                         expression: a,
-                        identifier: b.identifier,
-                        position: b.position
+                        identifier: b.value.identifier,
+                        range: b.range
                     } : {
                         type: 'CallExpression',
                         expression: a,
-                        arguments: b.arguments,
-                        position: b.position
+                        arguments: b.value.arguments,
+                        range: b.range
                     }
         ) : a)
     )
 );
 IndexExpression.setPattern(
-    apply(
+    applyRange(
         kmid(
             tok(TokenKind.OpenBracket),
             Expression,
             tok(TokenKind.CloseBracket)
         ),
-        (value, [token]) => ({
+        (value, range) => ({
             type: 'IndexExpressionPostfixPart',
             index: value,
-            position: token!.pos
+            range
         })
     )
 );
 MemberExpression.setPattern(
-    apply(
+    applyRange(
         kright(
             tok(TokenKind.Dot),
             tok(TokenKind.Identifier)
         ),
-        (value, [token]) => ({
+        (value, range) => ({
             type: 'MemberExpressionPostfixPart',
             identifier: value.text,
-            position: token!.pos
+            range
         })
     )
 );
 CallExpression.setPattern(
-    apply(
+    applyRange(
         Arguments,
-        (value, [token]) => ({
+        (value, range) => ({
             type: 'CallExpressionPostfixPart',
             arguments: value,
-            position: token!.pos
+            range
         })
     )
 );
@@ -1034,34 +1041,34 @@ PrimaryExpression.setPattern(
     )
 );
 ThisExpression.setPattern(
-    apply(
+    applyRange(
         tok(TokenKind.This),
-        (value, [token]) => ({
+        (value, range) => ({
             type: 'ThisExpression',
-            position: token!.pos
+            range
         })
     )
 );
 SuperExpression.setPattern(
-    apply(
+    applyRange(
         tok(TokenKind.Super),
-        (value, [token]) => ({
+        (value, range) => ({
             type: 'SuperExpression',
-            position: token!.pos
+            range
         })
     )
 );
 ParenthesizedExpression.setPattern(
-    apply(
+    applyRange(
         kmid(
             tok(TokenKind.OpenParen),
             Expression,
             tok(TokenKind.CloseParen)
         ),
-        (value, [token]) => ({
+        (value, range) => ({
             type: 'ParenthesizedExpression',
             expression: value,
-            position: token!.pos
+            range
         })
     )
 );
@@ -1075,42 +1082,42 @@ Literal.setPattern(
     )
 );
 NullLiteral.setPattern(
-    apply(
+    applyRange(
         tok(TokenKind.NullLiteral),
-        (value, [token]) => ({
+        (value, range) => ({
             type: 'NullLiteral',
-            position: token!.pos
+            range
         })
     )
 );
 BooleanLiteral.setPattern(
-    apply(
+    applyRange(
         tok(TokenKind.BooleanLiteral),
-        (value, [token]) => ({
+        (value, range) => ({
             type: 'BooleanLiteral',
             text: value.text as 'true' | 'false',
-            position: token!.pos
+            range
         })
     )
 );
 StringLiteral.setPattern(
-    apply(
+    applyRange(
         tok(TokenKind.StringLiteral),
-        (value, [token]) => ({
+        (value, range) => ({
             type: 'StringLiteral',
             text: value.text.slice(1, -1),
-            position: token!.pos
+            range
         })
     )
 );
 NumberLiteral.setPattern(
-    apply(
+    applyRange(
         alt(
             tok(TokenKind.DecimalIntegerLiteral),
             tok(TokenKind.DecimalFloatLiteral),
             tok(TokenKind.HexIntegerLiteral)
         ),
-        (value, [token]) => ({
+        (value, range) => ({
             type: 'NumberLiteral',
             isFloat: value.kind === TokenKind.DecimalFloatLiteral,
             number: value.kind === TokenKind.DecimalIntegerLiteral
@@ -1118,12 +1125,12 @@ NumberLiteral.setPattern(
                 : value.kind === TokenKind.DecimalFloatLiteral
                     ? parseFloat(value.text)
                     : parseInt(value.text, 10),
-            position: token!.pos
+            range
         })
     )
 );
 ArrayLiteral.setPattern(
-    apply(
+    applyRange(
         kmid(
             tok(TokenKind.OpenBracket),
             opt(
@@ -1134,29 +1141,29 @@ ArrayLiteral.setPattern(
             ),
             tok(TokenKind.CloseBracket)
         ),
-        (value, [token]) => ({
+        (value, range) => ({
             type: 'ArrayLiteral',
             items: value ?? [],
-            position: token!.pos
+            range
         })
     )
 );
 Parameter.setPattern(
-    apply(
+    applyRange(
         seq(
             tok(TokenKind.Identifier),
             TypeAnnotation
         ),
-        (value, [token]) => ({
+        (value, range) => ({
             type: 'Parameter',
             identifier: value[0].text,
             typeAnnotation: value[1],
-            position: token!.pos
+            range
         })
     )
 );
 ParameterList.setPattern(
-    apply(
+    applyRange(
         opt(
             list_sc(
                 Parameter,
@@ -1167,7 +1174,7 @@ ParameterList.setPattern(
     )
 );
 Arguments.setPattern(
-    apply(
+    applyRange(
         kmid(
             tok(TokenKind.OpenParen),
             opt(
@@ -1178,15 +1185,15 @@ Arguments.setPattern(
             ),
             tok(TokenKind.CloseParen)
         ),
-        (value, [token]) => ({
+        (value, range) => ({
             type: 'Arguments',
             items: value ?? [],
-            position: token!.pos
+            range
         })
     )
 );
 Type.setPattern(
-    apply(
+    applyRange(
         alt(
             tok(TokenKind.Void),
             seq(
@@ -1200,18 +1207,18 @@ Type.setPattern(
                 )
             )
         ),
-        (value, [token]) => Array.isArray(value)
+        (value, range) => Array.isArray(value)
             ? {
                 type: 'Type',
                 isVoid: false,
                 identifier: value[0],
                 dimensions: value[1].map(e => parseInt(e.text)),
-                position: token!.pos
+                range
             }
             : {
                 type: 'Type',
                 isVoid: true,
-                position: token!.pos
+                range
             }
     )
 );
@@ -1222,15 +1229,15 @@ TypeAnnotation.setPattern(
     )
 );
 Identifier.setPattern(
-    apply(
+    applyRange(
         list_sc(
             tok(TokenKind.Identifier),
             tok(TokenKind.Scope)
         ),
-        (value, [token]) => ({
+        (value, range) => ({
             type: 'Identifier',
             identifiers: value.map(e => e.text),
-            position: token!.pos
+            range
         })
     )
 );

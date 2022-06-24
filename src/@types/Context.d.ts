@@ -1,9 +1,9 @@
-type Position = import('typescript-parsec').TokenPosition;
+type Range_ = import('../parser/applyRange').Range;
 interface ModuleContext {
     type: 'Module',
     importDeclarations: ImportDeclarationContext[],
     declarations: DeclarationContext[],
-    position: Position
+    range: Range_
 }
 type ImportDeclarationContext = ImportDefineDeclarationContext
     | ImportNamespaceDeclarationContext
@@ -12,18 +12,18 @@ interface ImportDefineDeclarationContext {
     type: 'ImportDefineDeclaration',
     defines: string[],
     path: string,
-    position: Position
+    range: Range_
 }
 interface ImportNamespaceDeclarationContext {
     type: 'ImportNamespaceDeclaration',
     identifier: string,
     path: string,
-    position: Position
+    range: Range_
 }
 interface ImportBuiltinDeclarationContext {
     type: 'ImportBuiltinDeclaration',
     identifier: string,
-    position: Position
+    range: Range_
 }
 type DeclarationContext = FunctionDeclarationContext
     | DeclareDeclarationContext
@@ -35,7 +35,7 @@ interface FunctionDeclarationContext {
     parameterList: ParameterContext[],
     typeAnnotation?: TypeContext,
     body: BlockStatementContext,
-    position: Position
+    range: Range_
 }
 interface DeclareDeclarationContext {
     type: 'DeclareDeclaration',
@@ -43,7 +43,7 @@ interface DeclareDeclarationContext {
     alias?: string,
     parameters: ParameterContext[],
     typeAnnotation: TypeContext,
-    position: Position
+    range: Range_
 }
 interface VariableDeclarationContext {
     type: 'VariableDeclaration',
@@ -51,7 +51,7 @@ interface VariableDeclarationContext {
     identifier: string,
     typeAnnotation?: TypeContext,
     expression?: ExpressionContext,
-    position: Position
+    range: Range_
 }
 interface ClassDeclarationContext {
     type: 'ClassDeclaration',
@@ -60,19 +60,19 @@ interface ClassDeclarationContext {
     constructor?: ClassConstructorContext,
     fields: ClassFieldContext[],
     methods: ClassMethodContext[],
-    position: Position
+    range: Range_
 }
 interface ClassConstructorContext {
     type: 'ClassConstructor',
     parameterList: ParameterContext[],
     body: BlockStatementContext,
-    position: Position
+    range: Range_
 }
 interface ClassFieldContext {
     type: 'ClassField',
     identifier: string,
     typeAnnotation: TypeContext,
-    position: Position
+    range: Range_
 }
 interface ClassMethodContext {
     type: 'ClassMethod',
@@ -80,7 +80,7 @@ interface ClassMethodContext {
     parameterList: ParameterContext[],
     typeAnnotation?: TypeContext,
     body: BlockStatementContext,
-    position: Position
+    range: Range_
 }
 type StatementContext = BlockStatementContext
     | VariableDeclarationContext
@@ -94,30 +94,30 @@ type StatementContext = BlockStatementContext
 interface BlockStatementContext {
     type: 'BlockStatement',
     statements: StatementContext[],
-    position: Position
+    range: Range_
 }
 interface ExpressionStatementContext {
     type: 'ExpressionStatement',
     expression: ExpressionContext,
-    position: Position
+    range: Range_
 }
 interface ReturnStatementContext {
     type: 'ReturnStatement',
     expression?: ExpressionContext,
-    position: Position
+    range: Range_
 }
 interface IfStatementContext {
     type: 'IfStatement',
     condition: ExpressionContext,
     then: StatementContext,
     else?: StatementContext,
-    position: Position
+    range: Range_
 }
 interface WhileStatementContext {
     type: 'WhileStatement',
     condition: ExpressionContext,
     then: StatementContext,
-    position: Position
+    range: Range_
 }
 type ForStatementContext = ForNormalStatementContext | ForInStatementContext;
 interface ForNormalStatementContext {
@@ -126,22 +126,22 @@ interface ForNormalStatementContext {
     condition: ExpressionContext,
     final: ExpressionContext,
     then: StatementContext,
-    position: Position
+    range: Range_
 }
 interface ForInStatementContext {
     type: 'ForInStatement',
     identifier: string,
     expression: ExpressionContext,
     then: StatementContext,
-    position: Position
+    range: Range_
 }
 interface BreakStatementContext {
     type: 'BreakStatement',
-    position: Position
+    range: Range_
 }
 interface ContinueStatementContext {
     type: 'ContinueStatement',
-    position: Position
+    range: Range_
 }
 type ExpressionContext = AssignmentExpressionContext
     | TernaryExpressionContext
@@ -180,14 +180,14 @@ interface AssignmentExpressionContext {
     left: ExpressionContext,
     operator: '=' | '*=' | '/=' | '%=' | '+=' | '-=',
     right: ExpressionContext,
-    position: Position
+    range: Range_
 }
 interface TernaryExpressionContext {
     type: 'TernaryExpression',
     condition: ExpressionContext,
     then: ExpressionContext,
     else: ExpressionContext,
-    position: Position
+    range: Range_
 }
 interface LogicalOrExpressionContext {
     type: 'LogicalOrExpression',
@@ -252,89 +252,89 @@ interface AssertionExpressionContext {
 interface UnaryPlusExpressionContext {
     type: 'UnaryPlusExpression',
     expression: ExpressionContext,
-    position: Position
+    range: Range_
 }
 interface UnaryMinusExpressionContext {
     type: 'UnaryMinusExpression',
     expression: ExpressionContext,
-    position: Position
+    range: Range_
 }
 interface BitNotExpressionContext {
     type: 'BitNotExpression',
     expression: ExpressionContext,
-    position: Position
+    range: Range_
 }
 interface NotExpressionContext {
     type: 'NotExpression',
     expression: ExpressionContext,
-    position: Position
+    range: Range_
 }
 interface NewExpressionContext {
     type: 'NewExpression',
     identifier: IdentifierContext,
     arguments: ArgumentsContext,
-    position: Position
+    range: Range_
 }
 interface DeleteExpressionContext {
     type: 'DeleteExpression',
     expression: ExpressionContext,
-    position: Position
+    range: Range_
 }
 interface SizeofExpressionContext {
     type: 'SizeofExpression',
     typeAnnotation: TypeContext,
-    position: Position
+    range: Range_
 }
 interface PreIncrementExpressionContext {
     type: 'PreIncrementExpression',
     expression: ExpressionContext,
-    position: Position
+    range: Range_
 }
 interface PreDecrementExpressionContext {
     type: 'PreDecrementExpression',
     expression: ExpressionContext,
-    position: Position
+    range: Range_
 }
 interface PostIncrementExpressionContext {
     type: 'PostIncrementExpression',
     expression: ExpressionContext,
-    position: Position
+    range: Range_
 }
 interface PostDecrementExpressionContext {
     type: 'PostDecrementExpression',
     expression: ExpressionContext,
-    position: Position
+    range: Range_
 }
 interface IndexExpressionContext {
     type: 'IndexExpression',
     expression: ExpressionContext,
     index: ExpressionContext,
-    position: Position
+    range: Range_
 }
 interface MemberExpressionContext {
     type: 'MemberExpression',
     expression: ExpressionContext,
     identifier: string,
-    position: Position
+    range: Range_
 }
 interface CallExpressionContext {
     type: 'CallExpression',
     expression: ExpressionContext,
     arguments: ArgumentsContext,
-    position: Position
+    range: Range_
 }
 interface ThisExpressionContext {
     type: 'ThisExpression',
-    position: Position
+    range: Range_
 }
 interface SuperExpressionContext {
     type: 'SuperExpression',
-    position: Position
+    range: Range_
 }
 interface ParenthesizedExpressionContext {
     type: 'ParenthesizedExpression',
     expression: ExpressionContext,
-    position: Position
+    range: Range_
 }
 type LiteralContext = NullLiteralContext
     | BooleanLiteralContext
@@ -343,55 +343,55 @@ type LiteralContext = NullLiteralContext
     | ArrayLiteralContext;
 interface NullLiteralContext {
     type: 'NullLiteral',
-    position: Position
+    range: Range_
 }
 interface BooleanLiteralContext {
     type: 'BooleanLiteral',
     text: 'true' | 'false',
-    position: Position
+    range: Range_
 }
 interface StringLiteralContext {
     type: 'StringLiteral',
     text: string,
-    position: Position
+    range: Range_
 }
 interface NumberLiteralContext {
     type: 'NumberLiteral',
     isFloat: boolean,
     number: number,
-    position: Position
+    range: Range_
 }
 interface ArrayLiteralContext {
     type: 'ArrayLiteral',
     items: ExpressionContext[],
-    position: Position
+    range: Range_
 }
 interface ParameterContext {
     type: 'Parameter',
     identifier: string,
     typeAnnotation: TypeContext,
-    position: Position
+    range: Range_
 }
 interface ArgumentsContext {
     type: 'Arguments',
     items: ExpressionContext[],
-    position: Position
+    range: Range_
 }
 type TypeContext = VoidTypeContext | NotVoidTypeContext
 interface VoidTypeContext {
     type: 'Type',
     isVoid: true,
-    position: Position
+    range: Range_
 }
 interface NotVoidTypeContext {
     type: 'Type',
     isVoid: false,
     identifier: IdentifierContext,
     dimensions: number[],
-    position: Position
+    range: Range_
 }
 interface IdentifierContext {
     type: 'Identifier',
     identifiers: string[],
-    position: Position
+    range: Range_
 }

@@ -283,7 +283,7 @@ export const MultiplicativeExpression = (context: MultiplicativeExpressionContex
     throw new Error();
 };
 export const AssertionExpression = (context: AssertionExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
-    if (context.typeAnnotation.isVoid) throw SynacTypeError.unexpectedVoidError(context.typeAnnotation.position);
+    if (context.typeAnnotation.isVoid) throw SynacTypeError.unexpectedVoidError(context.typeAnnotation.range);
     const expression = Expression(context.expression, scope);
     const fromType = expression.getType();
     const toType = scope.getType(context.typeAnnotation.identifier.identifiers);
@@ -381,7 +381,7 @@ export const DeleteExpression = (context: DeleteExpressionContext, scope: Scope,
 const isPointerTy = (type: llvm.Type): type is llvm.PointerType => type.isPointerTy();
 export const SizeofExpression = (context: SizeofExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
     // Unexpected void
-    if (context.typeAnnotation.isVoid) throw SynacTypeError.unexpectedVoidError(context.typeAnnotation.position);
+    if (context.typeAnnotation.isVoid) throw SynacTypeError.unexpectedVoidError(context.typeAnnotation.range);
     const type = scope.getType(context.typeAnnotation.identifier.identifiers);
     const primitiveSize = type.getPrimitiveSizeInBits();
     if (primitiveSize) {
