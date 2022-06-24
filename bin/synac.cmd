@@ -1,2 +1,2 @@
 @echo off
-node --experimental-specifier-resolution=node %~dp0\..\dist\synac -- %*
+node --no-warnings --experimental-specifier-resolution=node %~dp0\..\dist\synac -- %*

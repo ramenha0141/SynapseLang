@@ -2,6 +2,7 @@ import * as llvm from '../llvm';
 
 import Scope from './Scope';
 import Condition from './Condition';
+import { SynacTypeError } from './Errors';
 
 const i32 = llvm.Type.getInt32Ty();
 const i8_ptr = llvm.Type.getInt8Ty().getPointerTo();
@@ -283,7 +284,7 @@ export const MultiplicativeExpression = (context: MultiplicativeExpressionContex
 };
 export const AssertionExpression = (context: AssertionExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
     // Unexpected void
-    if (context.typeAnnotation.isVoid) throw new Error();
+    if (context.typeAnnotation.isVoid) throw SynacTypeError.unexpectedVoidError(context.typeAnnotation.position);
     const expression = Expression(context.expression, scope);
     const fromType = expression.getType();
     const toType = scope.getType(context.typeAnnotation.identifier.identifiers);
@@ -381,7 +382,7 @@ export const DeleteExpression = (context: DeleteExpressionContext, scope: Scope,
 const isPointerTy = (type: llvm.Type): type is llvm.PointerType => type.isPointerTy();
 export const SizeofExpression = (context: SizeofExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
     // Unexpected void
-    if (context.typeAnnotation.isVoid) throw new Error();
+    if (context.typeAnnotation.isVoid) throw SynacTypeError.unexpectedVoidError(context.typeAnnotation.position);
     const type = scope.getType(context.typeAnnotation.identifier.identifiers);
     const primitiveSize = type.getPrimitiveSizeInBits();
     if (primitiveSize) {
