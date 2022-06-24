@@ -8,6 +8,7 @@ export class SynacError extends Error {
     ${' '.repeat(this.position.columnBegin - 1)}\x1b[38;2;236;0;0m${'~'.repeat(this.position.columnEnd - this.position.columnBegin)}\x1b[39m`;
     }
 }
+export class SynacSyntaxError extends SynacError {}
 export class SynacTypeError extends SynacError {
     static unexpectedVoidError(position: Position) {
         return new SynacTypeError('Unexpected void', position);

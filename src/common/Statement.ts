@@ -4,6 +4,7 @@ import Scope, { Symbols } from './Scope';
 import Type from './Type';
 import * as Expression from './Expression';
 import Condition from './Condition';
+import { SynacSyntaxError, SynacTypeError } from './Errors';
 
 export const Statement = (context: StatementContext, scope: Scope) => {
     switch (context.type) {
@@ -25,16 +26,13 @@ export const BlockStatement = (context: BlockStatementContext, scope: Scope, inj
     return blockScope;
 };
 export const VariableDeclaration = (context: VariableDeclarationContext, scope: Scope) => {
-    // Unexpected void type
-    if (context.typeAnnotation?.isVoid) throw new Error();
-    // Constant variable requires assignment
-    if (!context.expression && context.isConstant) throw new Error();
-    // Type annotation or expression are required
-    if (!context.expression && !context.typeAnnotation) throw new Error();
+    if (context.typeAnnotation?.isVoid) throw SynacTypeError.unexpectedVoidError(context.position);
+    if (!context.expression && context.isConstant) throw new SynacSyntaxError('Constant variable requires assignment', context.position);
+    if (!context.expression && !context.typeAnnotation) throw new SynacSyntaxError('Requires type annotation or expression', context.position);
     const typeAnnotation = context.typeAnnotation && Type(context.typeAnnotation, scope);
     const expression = context.expression && Expression.Expression(context.expression, scope, typeAnnotation);
     // Type conflict between type annotation and expression
-    if (expression && typeAnnotation && expression?.getType().getTypeID() !== typeAnnotation.getTypeID()) throw new Error();
+    if (expression && typeAnnotation && expression?.getType().getTypeID() !== typeAnnotation.getTypeID()) throw new SynacTypeError('Type conflict between type annotation and expression', context.position);
     // dev
     if (dev) builder.CreateComment(`${context.isConstant ? 'const' : 'let'} ${context.identifier}`);
     const variable = builder.CreateAlloca(typeAnnotation ?? expression?.getType() ?? llvm.Type.getInt32Ty());
