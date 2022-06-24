@@ -70,7 +70,7 @@ const compile = (options: CompilerOptions) => {
     } else {
         const tmpFile = tmp.fileSync({ postfix: '.ll' });
         fs.writeFileSync(tmpFile.name, IR);
-        child_process.execSync(`clang ${tmpFile.name} -o ${options.outputPath ?? `${path.basename(options.filePath ?? 'a', '.syn')}.exe`}`);
+        child_process.execSync(`clang ${tmpFile.name} -o ${options.outputPath ?? `${path.basename(options.filePath ?? 'a', '.syn')}${process.platform === 'win32' ? '.exe': ''}`}`);
         tmpFile.removeCallback();
     }
 
