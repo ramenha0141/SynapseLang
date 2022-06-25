@@ -1,6 +1,5 @@
 import * as llvm from '../llvm';
 import Class from './Class';
-import Module from './Module';
 
 export interface Symbols {
     [key: string]: llvm.Type | llvm.Value | llvm.Function | Class | Scope,
