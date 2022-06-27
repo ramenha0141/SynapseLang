@@ -75,7 +75,7 @@ const compile = (options: CompilerOptions) => {
             '-o', options.outputPath ?? `${path.basename(options.filePath ?? 'a', '.syn')}${process.platform === 'win32' ? '.exe': ''}`
         ], (error, stdout, stderr) => {
             tmpFile.removeCallback();
-            if (error) return console.log(error);
+            if (error) return console.log(error.message);
             if (/^warning: overriding the module target triple/.test(stderr)) return;
             console.log(stderr);
         });
