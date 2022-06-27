@@ -39,8 +39,8 @@ const MemberReference = (context: MemberExpressionContext, scope: Scope): llvm.V
     if (Class.fieldNames.includes(context.identifier)) {
         const fieldIndex = Class.fieldNames.indexOf(context.identifier);
         return builder.CreateGEP(Class.fieldTypes[fieldIndex].getPointerTo(), struct, [llvm.ConstantInt.get(i32, 0), llvm.ConstantInt.get(i32, fieldIndex)]);
-    } else if (Class.methods[context.identifier]) {
-        return [Class.methods[context.identifier][1], struct];
+    } else if (Class.getMethod(context.identifier)) {
+        return [Class.getMethod(context.identifier)[1], struct];
     } else {
         throw new Error();
     }
@@ -366,8 +366,11 @@ export const NewExpression = (context: NewExpressionContext, scope: Scope, expec
     const struct = builder.CreateBitCast(address, struct_ptr);
     if (Class.Constructor) {
         const [_, Constructor, scope] = Class.Constructor;
+        const This = Constructor.getArg(0).getType().equals(struct.getType())
+            ? struct
+            : builder.CreateBitCast(struct, Constructor.getArg(0).getType());
         const args = context.arguments.items.map((arg, i) => Expression(arg, scope, Constructor.getArg(i + 1).getType()));
-        builder.CreateCall(Constructor, [struct, ...args]);
+        builder.CreateCall(Constructor, [This, ...args]);
     }
     return struct;
 };
@@ -475,7 +478,9 @@ export const CallExpression = (context: CallExpressionContext, scope: Scope, exp
     if (!(func instanceof llvm.Function) && !Array.isArray(func)) throw new Error();
     if (Array.isArray(func)) {
         const method = func[0];
-        const This = func[1];
+        const This = func[1].getType().equals(method.getArg(0).getType())
+            ? func[1]
+            : builder.CreateBitCast(func[1], method.getArg(0).getType());
         const argTypes = method.getType().getParamTypes().slice(1);
         const args = [This, ...context.arguments.items.map((arg, i) => Expression(arg, scope, argTypes[i]))];
         return builder.CreateCall(method, args);

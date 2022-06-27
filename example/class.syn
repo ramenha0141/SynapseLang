@@ -10,9 +10,15 @@ class A {
         return this.value;
     }
 }
+class B extends A {
+    sub(value: int) {
+        this.value = this.value - value;
+    }
+}
 function main() {
-    const a: A = new A(2);
-    a.add(3);
-    console::puti(a.get());
-    delete a;
+    const b: B = new B(2);
+    b.add(3);
+    b.sub(1);
+    console::puti(b.get());
+    delete b;
 }

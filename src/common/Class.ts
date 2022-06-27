@@ -6,11 +6,18 @@ import Type from './Type';
 
 class Class {
     public readonly struct: llvm.StructType;
+    public readonly parent?: Class;
     public readonly Constructor?: [ClassConstructorContext, llvm.Function, Scope];
     public readonly fieldNames: string[] = [];
     public readonly fieldTypes: llvm.Type[] = [];
     public readonly methods: {[key: string]: [ClassMethodContext, llvm.Function, Scope]} = {};
     constructor(private context: ClassDeclarationContext, module: Module) {
+        this.parent = context.extends && module.getClass(context.extends?.identifiers);
+        if (this.parent) {
+            this.fieldNames = [...this.parent.fieldNames];
+            this.fieldTypes = [...this.parent.fieldTypes];
+            this.Constructor = this.parent.Constructor;
+        }
         for (const field of context.fields) {
             if (field.typeAnnotation.isVoid) throw new Error();
             this.fieldNames.push(field.identifier);
@@ -59,8 +66,13 @@ class Class {
             this.methods[methodContext.identifier] = [methodContext, method, methodScope];
         }
     }
+    public getMethod(identifier: string): [ClassMethodContext, llvm.Function, Scope] {
+        if (this.methods[identifier]) return this.methods[identifier];
+        if (this.parent) return this.parent.getMethod(identifier);
+        throw new Error();
+    }
     public generate() {
-        if (this.Constructor) {
+        if (this.context.constructor && this.Constructor) {
             const [context, Constructor, scope] = this.Constructor;
             builder.SetInsertPoint(Constructor.getLastBasicBlock());
             Statement(context.body, scope);

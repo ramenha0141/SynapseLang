@@ -35,6 +35,12 @@ class Type {
         return this.SubclassData;
     }
 
+    public equals(type: Type): boolean {
+        if (this.getTypeID() !== type.getTypeID()) return false;
+        if (this.toString() !== type.toString()) return false;
+        return true;
+    }
+
     public getTypeID(): TypeID {
         return this.ID;
     }
@@ -319,7 +325,10 @@ export class StructType extends Type {
     static get(llvmModule: Module, elementTypes: Type[], name: string): StructType {
         return new StructType(llvmModule, elementTypes, name);
     }
-    public getTypeByIndex(index: number): Type {
+    public getElementLength() {
+        return this.elementTypes.length;
+    }
+    public getElementTypeByIndex(index: number): Type {
         if (this.elementTypes.length <= index) throw new Error();
         return this.elementTypes[index];
     }
