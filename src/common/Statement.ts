@@ -32,7 +32,7 @@ export const VariableDeclaration = (context: VariableDeclarationContext, scope: 
     const typeAnnotation = context.typeAnnotation && Type(context.typeAnnotation, scope);
     const expression = context.expression && Expression.Expression(context.expression, scope, typeAnnotation);
     // Type conflict between type annotation and expression
-    if (expression && typeAnnotation && expression?.getType().getTypeID() !== typeAnnotation.getTypeID()) throw new SynacTypeError('Type conflict between type annotation and expression', context.range);
+    if (expression && typeAnnotation && !expression.getType().equals(typeAnnotation)) throw new SynacTypeError('Type conflict between type annotation and expression', context.range);
     // dev
     if (dev) builder.CreateComment(`${context.isConstant ? 'const' : 'let'} ${context.identifier}`);
     const variable = builder.CreateAlloca(typeAnnotation ?? expression?.getType() ?? llvm.Type.getInt32Ty());

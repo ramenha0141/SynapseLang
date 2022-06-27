@@ -158,7 +158,7 @@ export const TernaryExpression = (context: TernaryExpressionContext, scope: Scop
     builder.CreateBr(endBlock);
     builder.SetInsertPoint(endBlock);
     // Type conflict between then expression and else expression
-    if (thenExpression.getType().getTypeID() !== elseExpression.getType().getTypeID()) throw new Error();
+    if (!thenExpression.getType().equals(elseExpression.getType())) throw new Error();
     const expression = builder.CreatePHI(thenExpression.getType(), [[thenExpression, thenBlock], [elseExpression, elseBlock]]);
     return expression;
 };
@@ -175,25 +175,25 @@ export const LogicalAndExpression = (context: LogicalAndExpressionContext, scope
 export const BitOrExpression = (context: BitOrExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
     const left = Expression(context.left, scope, expectedType);
     const right = Expression(context.right, scope, expectedType);
-    if (left.getType().getTypeID() !== right.getType().getTypeID()) throw new Error();
+    if (!left.getType().equals(right.getType())) throw new Error();
     return builder.CreateOr(right, left);
 };
 export const BitXOrExpression = (context: BitXOrExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
     const left = Expression(context.left, scope, expectedType);
     const right = Expression(context.right, scope, expectedType);
-    if (left.getType().getTypeID() !== right.getType().getTypeID()) throw new Error();
+    if (!left.getType().equals(right.getType())) throw new Error();
     return builder.CreateXor(right, left);
 };
 export const BitAndExpression = (context: BitAndExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
     const left = Expression(context.left, scope, expectedType);
     const right = Expression(context.right, scope, expectedType);
-    if (left.getType().getTypeID() !== right.getType().getTypeID()) throw new Error();
+    if (!left.getType().equals(right.getType())) throw new Error();
     return builder.CreateAnd(right, left);
 };
 export const EqualityExpression = (context: EqualityExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
     const left = Expression(context.left, scope);
     const right = Expression(context.right, scope, left.getType());
-    if (left.getType().getTypeID() !== right.getType().getTypeID()) throw new Error();
+    if (!left.getType().equals(right.getType())) throw new Error();
     const type = left.getType();
     if (type.isIntegerTy() || type.isPointerTy()) {
         switch (context.operator) {
@@ -215,7 +215,7 @@ export const EqualityExpression = (context: EqualityExpressionContext, scope: Sc
 export const RelationalExpression = (context: RelationalExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
     const left = Expression(context.left, scope);
     const right = Expression(context.right, scope, left.getType());
-    if (left.getType().getTypeID() !== right.getType().getTypeID()) throw new Error();
+    if (!left.getType().equals(right.getType())) throw new Error();
     const type = left.getType();
     if (type.isIntegerTy()) {
         switch (context.operator) {
@@ -237,7 +237,7 @@ export const RelationalExpression = (context: RelationalExpressionContext, scope
 export const BitShiftExpression = (context: BitShiftExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
     const left = Expression(context.left, scope, expectedType);
     const right = Expression(context.right, scope, expectedType);
-    if (left.getType().getTypeID() !== right.getType().getTypeID()) throw new Error();
+    if (!left.getType().equals(right.getType())) throw new Error();
     switch (context.operator) {
         case '<<': return builder.CreateShl(left, right);
         case '>>': return builder.CreateAShr(left, right);
@@ -247,7 +247,7 @@ export const BitShiftExpression = (context: BitShiftExpressionContext, scope: Sc
 export const AdditiveExpression = (context: AdditiveExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
     const left = Expression(context.left, scope, expectedType);
     const right = Expression(context.right, scope, expectedType);
-    if (left.getType().getTypeID() !== right.getType().getTypeID()) throw new Error();
+    if (!left.getType().equals(right.getType())) throw new Error();
     const type = left.getType();
     if (type.isIntegerTy()) {
         switch (context.operator) {
@@ -265,7 +265,7 @@ export const AdditiveExpression = (context: AdditiveExpressionContext, scope: Sc
 export const MultiplicativeExpression = (context: MultiplicativeExpressionContext, scope: Scope, expectedType?: llvm.Type): llvm.Value => {
     const left = Expression(context.left, scope, expectedType);
     const right = Expression(context.right, scope, expectedType);
-    if (left.getType().getTypeID() !== right.getType().getTypeID()) throw new Error();
+    if (!left.getType().equals(right.getType())) throw new Error();
     const type = left.getType();
     if (type.isIntegerTy()) {
         switch (context.operator) {
