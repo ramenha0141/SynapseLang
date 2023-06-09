@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>WASM Test</title>
+    </head>
+    <body>
+        <script type="module">
+            const { instance } = await WebAssembly.instantiateStreaming(fetch('wasm.wasm'));
+            console.log(instance.exports.main());
+        </script>
+    </body>
+</html>

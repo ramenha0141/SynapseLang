@@ -5,7 +5,8 @@ const parse_parameter = (argv: string[]): CompilerOptions => {
     while (argv.length) {
         const arg = argv.shift();
         switch (arg) {
-            case '--': break;
+            case '--':
+                break;
             case '--help': {
                 options.help = true;
                 break;
@@ -18,20 +19,16 @@ const parse_parameter = (argv: string[]): CompilerOptions => {
                 options.ir = true;
                 break;
             }
+            case '--wasm': {
+                options.wasm = true;
+                break;
+            }
             case '-o': {
                 options.outputPath = argv.shift();
                 break;
             }
             case '-rootDir': {
                 options.rootDir = argv.shift();
-                break;
-            }
-            case '-arch': {
-                options.arch = argv.shift();
-                break;
-            }
-            case '-sys': {
-                options.sys = argv.shift();
                 break;
             }
             default: {

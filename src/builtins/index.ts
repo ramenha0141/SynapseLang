@@ -5,7 +5,11 @@ import console from './console';
 const builtins = (llvmModule: llvm.Module) => {
     return {
         ...Types,
-        console: console(llvmModule)
+        ...(global.options.wasm
+            ? {}
+            : {
+                  console: console(llvmModule)
+              })
     };
 };
 export default builtins;

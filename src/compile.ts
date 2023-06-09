@@ -11,6 +11,7 @@ import builtins from './builtins';
 import create_main from './create_main';
 const compile = (options: CompilerOptions) => {
     global.dev = !!options.dev;
+    global.options = options;
     const entryPath = options.filePath ?? 'index.syn';
     const rootDir = options.rootDir ?? './';
     const builtinsPath = '';
@@ -21,12 +22,9 @@ const compile = (options: CompilerOptions) => {
     global.sourceMap = new Map();
     const loadModule = (modulePath: string, isBuiltin?: boolean) => {
         global.currentPath = isBuiltin
-                ? path.join(builtinsPath, modulePath + '.syn')
-                : path.join(rootDir, modulePath);
-        const source = fs.readFileSync(
-            currentPath,
-            'utf-8'
-        );
+            ? path.join(builtinsPath, modulePath + '.syn')
+            : path.join(rootDir, modulePath);
+        const source = fs.readFileSync(currentPath, 'utf-8');
         global.sourceMap.set(global.currentPath, source.split('\n'));
         const moduleContext = parser(source);
         const module = new Module(modulePath, moduleContext.declarations, builtins(llvmModule));
@@ -63,23 +61,36 @@ const compile = (options: CompilerOptions) => {
         moduleMap[modulePath] = module;
     };
     loadModule(entryPath);
-    create_main(moduleMap[entryPath]);
+    if (!options.wasm) create_main(moduleMap[entryPath]);
     const IR = llvmModule.print();
     if (options.ir) {
-        fs.writeFileSync(options.outputPath ?? `${path.basename(options.filePath ?? 'a', '.syn')}.ll`, IR);
+        fs.writeFileSync(
+            options.outputPath ?? `${path.basename(options.filePath ?? 'out', '.syn')}.ll`,
+            IR
+        );
     } else {
         const tmpFile = tmp.fileSync({ postfix: '.ll' });
         fs.writeFileSync(tmpFile.name, IR);
-        child_process.execFile('clang', [
-            tmpFile.name,
-            '-o', options.outputPath ?? `${path.basename(options.filePath ?? 'a', '.syn')}${process.platform === 'win32' ? '.exe': ''}`
-        ], (error, stdout, stderr) => {
-            tmpFile.removeCallback();
-            if (error) return console.log(error.message);
-            if (/^warning: overriding the module target triple/.test(stderr)) return;
-            console.log(stderr);
-        });
+        child_process.execFile(
+            'clang',
+            [
+                tmpFile.name,
+                '-o',
+                options.outputPath ??
+                    `${path.basename(options.filePath ?? 'out', '.syn')}${
+                        options.wasm ? '.wasm' : process.platform === 'win32' ? '.exe' : ''
+                    }`,
+                ...(options.wasm
+                    ? ['--target=wasm32', '-nostdlib', '-Wl,--no-entry', '-Wl,--export-all']
+                    : [])
+            ],
+            (error, stdout, stderr) => {
+                tmpFile.removeCallback();
+                if (error) return console.log(error.message);
+                if (/^warning: overriding the module target triple/.test(stderr)) return;
+                console.log(stderr);
+            }
+        );
     }
-
 };
 export default compile;
