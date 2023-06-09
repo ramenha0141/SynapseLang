@@ -82,7 +82,10 @@ const compile = (options: CompilerOptions) => {
                     }`,
                 ...(options.wasm
                     ? ['--target=wasm32', '-nostdlib', '-Wl,--no-entry', '-Wl,--export-all']
-                    : [])
+                    : []),
+                '-O3',
+                '-flto',
+                '-Wl,--lto-O3'
             ],
             (error, stdout, stderr) => {
                 tmpFile.removeCallback();
